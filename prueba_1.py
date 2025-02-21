@@ -100,7 +100,8 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     
     columnas_presentes = [col for col in ['lat', 'lon', 'Drogas', 'Armas'] if col in df_combined.columns]
     for col in columnas_presentes:
-        df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')
+        if not df_combined[col].empty:
+            df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')
     
     df_combined = df_combined.dropna(subset=['lat', 'lon'])
     
