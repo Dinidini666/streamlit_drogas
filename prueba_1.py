@@ -10,7 +10,6 @@ import geopandas as gpd
 import folium
 from streamlit_folium import folium_static
 from folium.plugins import HeatMap
-from folium import FeatureGroup
 
 # Load the data
 file_peru = "consolidado_peru.xlsx"
@@ -61,16 +60,17 @@ drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
 
 drug_data.dropna(inplace=True)
 
-drug_map = folium.Map(location=[-10, -75], zoom_start=4)
-
-years = sorted(drug_data['Año'].unique())
-for year in years:
-    year_layer = FeatureGroup(name=str(year))
-    data_year = drug_data[drug_data['Año'] == year]
-    HeatMap(data=data_year[['lat', 'lon', 'Drogas']].values, radius=15).add_to(year_layer)
-    drug_map.add_child(year_layer)
-
-drug_map.add_child(folium.LayerControl())
-
+# Optimized map with year selection
 st.title("Mapa de Calor: Drogas Decomisadas por Año")
+years = sorted(drug_data['Año'].unique(), reverse=True)
+selected_year = st.selectbox("Selecciona el año:", years)
+data_year = drug_data[drug_data['Año'] == selected_year]
+
+# Reduce data points to improve performance
+if len(data_year) > 1000:
+    data_year = data_year.sample(n=1000, random_state=42)
+
+# Create map
+drug_map = folium.Map(location=[-10, -75], zoom_start=4)
+HeatMap(data=data_year[['lat', 'lon', 'Drogas']].values, radius=10).add_to(drug_map)
 folium_static(drug_map)
