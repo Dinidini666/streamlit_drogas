@@ -85,20 +85,26 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     
     df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
     
-    df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Ubicacion': 'Ubicacion'}, inplace=True)
-    df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'CANTIDAD_ARMAS': 'Armas', 'Ubicacion': 'Ubicacion'}, inplace=True)
-    df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Ubicacion': 'Ubicacion'}, inplace=True)
-    df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Ubicacion': 'Ubicacion'}, inplace=True)
+    # Normalizar nombres de columnas
+    column_map = {'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon',
+                  'CANTIDAD_DROGA': 'Drogas', 'CANTIDAD_ARMAS': 'Armas', 'TOTAL_DROGAS_KG.': 'Drogas',
+                  'Cocaína (ton)': 'Drogas'}
     
-    # Convertir a numérico y filtrar datos válidos
+    for df in [df_peru, df_colombia, df_ecuador, df_bolivia]:
+        df.rename(columns=column_map, inplace=True)
+    
+    # Combinar datos
     drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
     drug_data[['lat', 'lon', 'Drogas']] = drug_data[['lat', 'lon', 'Drogas']].apply(pd.to_numeric, errors='coerce')
     drug_data = drug_data.dropna(subset=['lat', 'lon', 'Drogas'])
+    
+    st.write("Columnas disponibles en drug_data:", drug_data.columns)
     
     if page == "Mapa de Drogas":
         drug_map = folium.Map(location=[-10, -75], zoom_start=4)
         HeatMap(data=drug_data[['lat', 'lon', 'Drogas']].values, radius=8, max_val=drug_data['Drogas'].max()).add_to(drug_map)
         for _, row in drug_data.iterrows():
+            ubicacion = row.get('Ubicacion', 'Ubicación desconocida')
             folium.CircleMarker(
                 location=[row['lat'], row['lon']],
                 radius=3,
@@ -106,6 +112,6 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
                 fill=True,
                 fill_color='red',
                 fill_opacity=0.7,
-                popup=f"{row['Ubicacion']} - Cantidad: {row['Drogas']} kg"
+                popup=f"{ubicacion} - Cantidad: {row['Drogas']} kg"
             ).add_to(drug_map)
         folium_static(drug_map)
