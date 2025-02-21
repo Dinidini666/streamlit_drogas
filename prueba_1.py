@@ -95,23 +95,22 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     df_combined.rename(columns=column_map, inplace=True)
     
     for col in ['lat', 'lon', 'Drogas', 'Armas']:
-        if col not in df_combined.columns:
-            df_combined[col] = pd.NA
+        if col not in df_combined.columns or df_combined[col].isnull().all():
+            df_combined[col] = 0  # Reemplazar NaN con 0 en vez de NaT
     
-    columnas_presentes = [col for col in ['lat', 'lon', 'Drogas', 'Armas'] if col in df_combined.columns]
-    for col in columnas_presentes:
-        if col in df_combined.columns and not df_combined[col].isnull().all():
+    for col in ['lat', 'lon', 'Drogas', 'Armas']:
+        if col in df_combined.columns:
             df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')
     
     df_combined = df_combined.dropna(subset=['lat', 'lon'])
     
     if page == "Mapa de Drogas":
-        df_filtered = df_combined.dropna(subset=['Drogas'])
+        df_filtered = df_combined[df_combined['Drogas'] > 0]
         map_object = folium.Map(location=[-10, -75], zoom_start=4)
         HeatMap(data=df_filtered[['lat', 'lon', 'Drogas']].values, radius=8, max_val=df_filtered['Drogas'].max()).add_to(map_object)
         folium_static(map_object)
     else:
-        df_filtered = df_combined.dropna(subset=['Armas'])
+        df_filtered = df_combined[df_combined['Armas'] > 0]
         map_object = folium.Map(location=[-10, -75], zoom_start=4)
         HeatMap(data=df_filtered[['lat', 'lon', 'Armas']].values, radius=8, max_val=df_filtered['Armas'].max()).add_to(map_object)
         folium_static(map_object)
