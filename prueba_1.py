@@ -72,46 +72,36 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     st.title(f"Mapa de Calor: {page.split()[1]} en la Comunidad Andina")
     
     # Cargar los datos
-    file_peru = "consolidado_peru.xlsx"
-    file_colombia = "consolidado_colombia.xlsx"
-    file_ecuador = "consolidado_ecuador.xlsx"
-    file_bolivia = "consolidado_bolivia.xlsx"
+    files = {
+        "Peru": "consolidado_peru.xlsx",
+        "Colombia": "consolidado_colombia.xlsx",
+        "Ecuador": "consolidado_ecuador.xlsx",
+        "Bolivia": "consolidado_bolivia.xlsx"
+    }
     
-    df_peru = pd.read_excel(file_peru, sheet_name="Sheet1")
-    df_colombia = pd.read_excel(file_colombia, sheet_name="Sheet1")
-    df_ecuador = pd.read_excel(file_ecuador, sheet_name="Sheet1")
-    df_bolivia_2022 = pd.read_excel(file_bolivia, sheet_name="2022")
-    df_bolivia_2023 = pd.read_excel(file_bolivia, sheet_name="2023")
+    dataframes = []
+    for country, file in files.items():
+        df = pd.read_excel(file, sheet_name="Sheet1")
+        df["Pais"] = country
+        dataframes.append(df)
     
-    df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
+    df_combined = pd.concat(dataframes, ignore_index=True)
     
-    # Normalizar nombres de columnas
     column_map = {'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon',
                   'CANTIDAD_DROGA': 'Drogas', 'CANTIDAD_ARMAS': 'Armas', 'TOTAL_DROGAS_KG.': 'Drogas',
                   'Cocaína (ton)': 'Drogas'}
+    df_combined.rename(columns=column_map, inplace=True)
     
-    for df in [df_peru, df_colombia, df_ecuador, df_bolivia]:
-        df.rename(columns=column_map, inplace=True)
-    
-    # Combinar datos
-    drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
-    drug_data[['lat', 'lon', 'Drogas']] = drug_data[['lat', 'lon', 'Drogas']].apply(pd.to_numeric, errors='coerce')
-    drug_data = drug_data.dropna(subset=['lat', 'lon', 'Drogas'])
-    
-    st.write("Columnas disponibles en drug_data:", drug_data.columns)
+    df_combined[['lat', 'lon', 'Drogas', 'Armas']] = df_combined[['lat', 'lon', 'Drogas', 'Armas']].apply(pd.to_numeric, errors='coerce')
+    df_combined = df_combined.dropna(subset=['lat', 'lon'])
     
     if page == "Mapa de Drogas":
-        drug_map = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=drug_data[['lat', 'lon', 'Drogas']].values, radius=8, max_val=drug_data['Drogas'].max()).add_to(drug_map)
-        for _, row in drug_data.iterrows():
-            ubicacion = row.get('Ubicacion', 'Ubicación desconocida')
-            folium.CircleMarker(
-                location=[row['lat'], row['lon']],
-                radius=3,
-                color='red',
-                fill=True,
-                fill_color='red',
-                fill_opacity=0.7,
-                popup=f"{ubicacion} - Cantidad: {row['Drogas']} kg"
-            ).add_to(drug_map)
-        folium_static(drug_map)
+        df_filtered = df_combined.dropna(subset=['Drogas'])
+        map_object = folium.Map(location=[-10, -75], zoom_start=4)
+        HeatMap(data=df_filtered[['lat', 'lon', 'Drogas']].values, radius=8, max_val=df_filtered['Drogas'].max()).add_to(map_object)
+        folium_static(map_object)
+    else:
+        df_filtered = df_combined.dropna(subset=['Armas'])
+        map_object = folium.Map(location=[-10, -75], zoom_start=4)
+        HeatMap(data=df_filtered[['lat', 'lon', 'Armas']].values, radius=8, max_val=df_filtered['Armas'].max()).add_to(map_object)
+        folium_static(map_object)
