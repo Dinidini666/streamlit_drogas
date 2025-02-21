@@ -90,15 +90,21 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
     df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
     
-    # Filtrar datos con coordenadas válidas
+    # Convertir a numérico y filtrar datos válidos
     drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
+    drug_data['lat'] = pd.to_numeric(drug_data['lat'], errors='coerce')
+    drug_data['lon'] = pd.to_numeric(drug_data['lon'], errors='coerce')
+    drug_data = drug_data.dropna(subset=['lat', 'lon'])
     drug_data = drug_data[(drug_data['lat'].between(-90, 90)) & (drug_data['lon'].between(-180, 180))]
     
     if page == "Mapa de Drogas":
         heatmap_data = drug_data[['lat', 'lon', 'Drogas']].dropna().values
     else:
         weapons_data = df_colombia[['lat', 'lon', 'Armas']].dropna()
-        heatmap_data = weapons_data[['lat', 'lon', 'Armas']].dropna().values
+        weapons_data['lat'] = pd.to_numeric(weapons_data['lat'], errors='coerce')
+        weapons_data['lon'] = pd.to_numeric(weapons_data['lon'], errors='coerce')
+        weapons_data = weapons_data.dropna(subset=['lat', 'lon'])
+        heatmap_data = weapons_data[['lat', 'lon', 'Armas']].values
     
     if heatmap_data.size == 0:
         st.warning("No hay datos válidos para mostrar en el mapa.")
