@@ -50,15 +50,22 @@ ensure_columns(df_colombia, required_columns)
 ensure_columns(df_ecuador, required_columns)
 ensure_columns(df_bolivia, required_columns)
 
-# Convert to numeric
-df_ecuador['Drogas'] = pd.to_numeric(df_ecuador['Drogas'], errors='coerce')
+# Convert columns to numeric and remove invalid data
+def clean_data(df):
+    df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
+    df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
+    df['Drogas'] = pd.to_numeric(df['Drogas'], errors='coerce')
+    return df.dropna(subset=['lat', 'lon', 'Drogas'])
 
-drug_data = pd.concat([
-    df_peru[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas']),
-    df_colombia[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas']),
-    df_ecuador[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas']),
-    df_bolivia[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas'])
-])
+df_peru = clean_data(df_peru)
+df_colombia = clean_data(df_colombia)
+df_ecuador = clean_data(df_ecuador)
+df_bolivia = clean_data(df_bolivia)
+
+# Merge data
+drug_data = pd.concat([df_peru[['lat', 'lon', 'Drogas']], df_colombia[['lat', 'lon', 'Drogas']], df_ecuador[['lat', 'lon', 'Drogas']], df_bolivia[['lat', 'lon', 'Drogas']]])
+
+drug_data.dropna(inplace=True)
 
 # Map for drugs
 st.title("Mapa de Calor: Drogas Decomisadas")
