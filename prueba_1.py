@@ -11,98 +11,98 @@ import folium
 from streamlit_folium import folium_static
 from folium.plugins import HeatMap
 
-# Load the data
-file_peru = "consolidado_peru.xlsx"
-file_colombia = "consolidado_colombia.xlsx"
-file_ecuador = "consolidado_ecuador.xlsx"
-file_bolivia = "consolidado_bolivia.xlsx"
+# Introducción y navegación
+st.title("Mapa de Calor: Drogas y Armas en la Comunidad Andina")
 
-df_peru = pd.read_excel(file_peru, sheet_name="Sheet1")
-df_colombia = pd.read_excel(file_colombia, sheet_name="Sheet1")
-df_ecuador = pd.read_excel(file_ecuador, sheet_name="Sheet1")
-df_bolivia_2022 = pd.read_excel(file_bolivia, sheet_name="2022")
-df_bolivia_2023 = pd.read_excel(file_bolivia, sheet_name="2023")
+st.markdown("""
+## Introducción
+Este dashboard muestra un análisis geoespacial sobre la incautación de drogas y armas en la Comunidad Andina desde el año 2019. 
+Los datos provienen de fuentes oficiales y están en constante actualización. En futuras versiones, se implementará la opción de visualizar los datos por año.
 
-df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
+La base de datos utilizada es pública; sin embargo, este trabajo implicó un proceso de selección, limpieza y organización de los datos más relevantes, 
+de manera que puedan ser utilizados eficazmente por los países de la región para la toma de decisiones.
 
-# Standardize column names
-df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Año': 'Year'}, inplace=True)
-df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Año': 'Year', 'CANTIDAD_ARMAS': 'Armas'}, inplace=True)
-df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Año': 'Year'}, inplace=True)
-df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Año': 'Year'}, inplace=True)
+Utilice los botones a continuación para navegar entre los mapas de calor.
+""")
 
-# Ensure required columns exist
-def ensure_columns(df, required_columns):
-    for col in required_columns:
-        if col not in df.columns:
-            df[col] = pd.NA
+# Sidebar para navegación
+page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas"])
 
-required_columns = ['lat', 'lon', 'Drogas', 'Year']
-ensure_columns(df_peru, required_columns)
-ensure_columns(df_colombia, required_columns)
-ensure_columns(df_ecuador, required_columns)
-ensure_columns(df_bolivia, required_columns)
+# Información General
+if page == "Información General":
+    st.markdown("""
+    ## Mecanismos y Programas Internacionales Relacionados
+    A continuación se presentan las principales organizaciones y programas que abordan la problemática de las drogas y las armas en la Comunidad Andina:
+    """)
+    
+    data = {
+        "Organización": ["ONU", "ONU", "OEA", "UE", "INTERPOL", "INTERPOL"],
+        "Mecanismo/Programa": [
+            "Oficina de las Naciones Unidas contra la Droga y el Delito (UNODC)",
+            "Programa Mundial sobre Armas de Fuego de la UNODC",
+            "Comisión Interamericana para el Control del Abuso de Drogas (CICAD)",
+            "Estrategia de la UE sobre Drogas 2021-2025",
+            "Proyecto AMEAP",
+            "Proyecto DISRUPT"
+        ],
+        "Enfoque": ["Drogas", "Armas", "Drogas", "Drogas", "Drogas", "Armas"],
+        "Normativa Asociada": [
+            "Convención Única sobre Estupefacientes de 1961; Convenio sobre Sustancias Sicotrópicas de 1971; Convención de las Naciones Unidas contra el Tráfico Ilícito de Estupefacientes y Sustancias Sicotrópicas de 1988",
+            "Protocolo contra la Fabricación y el Tráfico Ilícitos de Armas de Fuego (2001)",
+            "Convención Interamericana contra la Fabricación y el Tráfico Ilícitos de Armas de Fuego (CIFTA) de 1997",
+            "Estrategia de la UE en materia de lucha contra la droga 2021-2025",
+            "No se asocia a una normativa específica, pero opera bajo el marco de cooperación internacional en materia de control de drogas.",
+            "No se asocia a una normativa específica, pero se alinea con el Protocolo contra la Fabricación y el Tráfico Ilícitos de Armas de Fuego."
+        ],
+        "Países de la Comunidad Andina Firmantes": [
+            "Bolivia, Colombia, Ecuador y Perú",
+            "Bolivia, Colombia, Ecuador y Perú",
+            "Bolivia, Colombia, Ecuador y Perú",
+            "No aplica directamente a la Comunidad Andina",
+            "Bolivia, Colombia, Ecuador y Perú",
+            "Bolivia, Colombia, Ecuador y Perú"
+        ]
+    }
+    
+    df_info = pd.DataFrame(data)
+    st.dataframe(df_info)
 
-# Convert columns to numeric and remove invalid data
-def clean_data(df):
-    df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
-    df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
-    df['Drogas'] = pd.to_numeric(df['Drogas'], errors='coerce')
-    df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
-    df = df.dropna(subset=['lat', 'lon', 'Year'])
-    df['Year'] = df['Year'].astype(int)
-    if 'Armas' in df.columns:
-        df['Armas'] = pd.to_numeric(df['Armas'], errors='coerce')
-    return df
-
-df_peru = clean_data(df_peru)
-df_colombia = clean_data(df_colombia)
-df_ecuador = clean_data(df_ecuador)
-df_bolivia = clean_data(df_bolivia)
-
-drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
-
-drug_data.dropna(inplace=True)
-
-# Select type of map
-st.title("Mapa de Calor: Drogas y Armas")
-map_type = st.radio("Selecciona el tipo de mapa:", ["Drogas", "Armas"])
-
-# Year selection with "Todos los años" option
-years = sorted(drug_data['Year'].unique(), reverse=True)
-years.insert(0, "Todos los años")
-selected_year = st.selectbox("Selecciona el año:", years)
-
-if map_type == "Drogas":
-    if selected_year == "Todos los años":
-        data_year = drug_data.copy()
+# Mapas de Drogas y Armas
+if page == "Mapa de Drogas" or page == "Mapa de Armas":
+    st.title(f"Mapa de Calor: {page.split()[1]} en la Comunidad Andina")
+    
+    # Cargar los datos
+    file_peru = "consolidado_peru.xlsx"
+    file_colombia = "consolidado_colombia.xlsx"
+    file_ecuador = "consolidado_ecuador.xlsx"
+    file_bolivia = "consolidado_bolivia.xlsx"
+    
+    df_peru = pd.read_excel(file_peru, sheet_name="Sheet1")
+    df_colombia = pd.read_excel(file_colombia, sheet_name="Sheet1")
+    df_ecuador = pd.read_excel(file_ecuador, sheet_name="Sheet1")
+    df_bolivia_2022 = pd.read_excel(file_bolivia, sheet_name="2022")
+    df_bolivia_2023 = pd.read_excel(file_bolivia, sheet_name="2023")
+    
+    df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
+    
+    df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
+    df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'CANTIDAD_ARMAS': 'Armas'}, inplace=True)
+    df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
+    df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
+    
+    required_columns = ['lat', 'lon', 'Drogas']
+    df_peru = df_peru.dropna(subset=required_columns)
+    df_colombia = df_colombia.dropna(subset=required_columns)
+    df_ecuador = df_ecuador.dropna(subset=required_columns)
+    df_bolivia = df_bolivia.dropna(subset=required_columns)
+    
+    if page == "Mapa de Drogas":
+        drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
+        heatmap_data = drug_data[['lat', 'lon', 'Drogas']].values
     else:
-        data_year = drug_data[drug_data['Year'] == selected_year]
+        weapons_data = df_colombia[['lat', 'lon', 'Armas']].dropna()
+        heatmap_data = weapons_data[['lat', 'lon', 'Armas']].values
     
-    if len(data_year) > 3000:
-        data_year = data_year.sample(n=3000, random_state=42)
-    
-    if not data_year.empty:
-        drug_map = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=data_year[['lat', 'lon', 'Drogas']].dropna().values, radius=7).add_to(drug_map)
-        folium_static(drug_map)
-    else:
-        st.warning("No hay datos disponibles para el año seleccionado.")
-
-elif map_type == "Armas":
-    weapons_data = df_colombia[['lat', 'lon', 'Armas', 'Year']].dropna(subset=['lat', 'lon', 'Armas', 'Year'])
-    
-    if selected_year == "Todos los años":
-        weapons_year_data = weapons_data.copy()
-    else:
-        weapons_year_data = weapons_data[weapons_data['Year'] == selected_year]
-    
-    if len(weapons_year_data) > 3000:
-        weapons_year_data = weapons_year_data.sample(n=3000, random_state=42)
-    
-    if not weapons_year_data.empty:
-        weapon_map = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].dropna().values, radius=7).add_to(weapon_map)
-        folium_static(weapon_map)
-    else:
-        st.warning("No hay datos disponibles para el año seleccionado.")
+    map_view = folium.Map(location=[-10, -75], zoom_start=4)
+    HeatMap(data=heatmap_data, radius=8).add_to(map_view)
+    folium_static(map_view)
