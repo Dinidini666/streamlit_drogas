@@ -93,7 +93,7 @@ if page in ["Mapa de Drogas", "Mapa de Armas"]:
     # Manejar valores no numéricos y NaN
     for col in ['lat', 'lon', 'Drogas', 'Armas']:
         if col in df_combined.columns:
-            df_combined[col] = df_combined[col].astype(str).fillna('')  # Convertir NaN a str
+            df_combined[col] = df_combined[col].astype(str)  # Convertir todo a string temporalmente
             df_combined[col] = df_combined[col].str.replace(r'[^0-9.-]', '', regex=True)  # Limpiar caracteres no numéricos
             df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')  # Convertir a número
 
