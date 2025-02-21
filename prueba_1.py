@@ -94,7 +94,12 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
                   'Cocaína (ton)': 'Drogas'}
     df_combined.rename(columns=column_map, inplace=True)
     
-    df_combined[['lat', 'lon', 'Drogas', 'Armas']] = df_combined[['lat', 'lon', 'Drogas', 'Armas']].apply(pd.to_numeric, errors='coerce')
+    for col in ['lat', 'lon', 'Drogas', 'Armas']:
+        if col not in df_combined.columns:
+            df_combined[col] = pd.NA
+    
+    columnas_presentes = [col for col in ['lat', 'lon', 'Drogas', 'Armas'] if col in df_combined.columns]
+    df_combined[columnas_presentes] = df_combined[columnas_presentes].apply(pd.to_numeric, errors='coerce')
     df_combined = df_combined.dropna(subset=['lat', 'lon'])
     
     if page == "Mapa de Drogas":
