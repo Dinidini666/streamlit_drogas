@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import requests
+import io
 import folium
 from streamlit_folium import folium_static
 from folium.plugins import HeatMap
@@ -7,24 +9,37 @@ from folium.plugins import HeatMap
 # Configurar título de la app
 st.title("Mapas de Calor: Drogas y Armas en la Comunidad Andina")
 
-# Subir archivos directamente desde Streamlit
-st.sidebar.header("Cargar Archivos Excel")
-uploaded_files = {
-    "Peru": st.sidebar.file_uploader("Sube el archivo de Perú", type=["xlsx"]),
-    "Colombia": st.sidebar.file_uploader("Sube el archivo de Colombia", type=["xlsx"]),
-    "Ecuador": st.sidebar.file_uploader("Sube el archivo de Ecuador", type=["xlsx"]),
-    "Bolivia": st.sidebar.file_uploader("Sube el archivo de Bolivia", type=["xlsx"])
+# URL base de los archivos en GitHub (REEMPLAZA con la URL de tu repositorio)
+GITHUB_BASE_URL = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPOSITORIO/main/"
+
+# Archivos de cada país
+files = {
+    "Peru": "consolidado_peru.xlsx",
+    "Colombia": "consolidado_colombia.xlsx",
+    "Ecuador": "consolidado_ecuador.xlsx",
+    "Bolivia": "consolidado_bolivia.xlsx"
 }
 
-# Diccionario para almacenar DataFrames
-dataframes = {}
+def load_excel_from_github(url):
+    """Descarga un archivo Excel desde GitHub y lo carga en un DataFrame."""
+    response = requests.get(url)
+    if response.status_code == 200:
+        file_bytes = io.BytesIO(response.content)
+        with pd.ExcelFile(file_bytes) as xls:
+            sheet_name = 'Sheet1' if 'Sheet1' in xls.sheet_names else xls.sheet_names[0]
+            return pd.read_excel(xls, sheet_name=sheet_name)
+    else:
+        st.error(f"Error al descargar: {url} (Código {response.status_code})")
+        return None
 
-# Cargar archivos
-for country, uploaded_file in uploaded_files.items():
-    if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
-        df["Pais"] = country  # Agregar columna del país
-        dataframes[country] = df
+# Cargar todos los archivos
+dataframes = []
+for country, file in files.items():
+    file_url = GITHUB_BASE_URL + file
+    df = load_excel_from_github(file_url)
+    if df is not None:
+        df["Pais"] = country
+        dataframes.append(df)
 
 # Unificar los DataFrames
 if dataframes:
@@ -54,7 +69,7 @@ if dataframes:
     # Eliminar filas sin latitud o longitud
     df_combined.dropna(subset=['lat', 'lon'], inplace=True)
 
-    # Seleccionar mapa
+    # Sidebar para seleccionar el mapa
     option = st.sidebar.radio("Selecciona el mapa:", ["Mapa de Drogas", "Mapa de Armas"])
 
     # Crear mapa base
@@ -88,4 +103,4 @@ if dataframes:
     folium_static(map_object)
 
 else:
-    st.warning("Sube al menos un archivo Excel para generar los mapas.")
+    st.warning("No se pudo descargar los datos desde GitHub. Verifica las URLs.")
