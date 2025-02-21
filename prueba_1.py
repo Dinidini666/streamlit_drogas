@@ -34,7 +34,7 @@ if page == "Información General":
     ## Mecanismos y Programas Internacionales Relacionados
     A continuación se presentan las principales organizaciones y programas que abordan la problemática de las drogas y las armas en la Comunidad Andina:
     """)
-    
+
     data = {
         "Organización": ["ONU", "ONU", "OEA", "UE", "INTERPOL", "INTERPOL"],
         "Mecanismo/Programa": [
@@ -63,14 +63,14 @@ if page == "Información General":
             "Bolivia, Colombia, Ecuador y Perú"
         ]
     }
-    
+
     df_info = pd.DataFrame(data)
     st.dataframe(df_info)
 
 # Mapas de Drogas y Armas
 if page == "Mapa de Drogas" or page == "Mapa de Armas":
     st.title(f"Mapa de Calor: {page.split()[1]} en la Comunidad Andina")
-    
+
     # Cargar los datos
     files = {
         "Peru": "consolidado_peru.xlsx",
@@ -78,7 +78,7 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
         "Ecuador": "consolidado_ecuador.xlsx",
         "Bolivia": "consolidado_bolivia.xlsx"
     }
-    
+
     dataframes = []
     for country, file in files.items():
         with pd.ExcelFile(file) as xls:
@@ -86,23 +86,31 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
             df = pd.read_excel(xls, sheet_name=sheet_name)
             df["Pais"] = country
             dataframes.append(df)
-    
+
     df_combined = pd.concat(dataframes, ignore_index=True)
-    
+
+    # Renombrar columnas
     column_map = {'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon',
                   'CANTIDAD_DROGA': 'Drogas', 'CANTIDAD_ARMAS': 'Armas', 'TOTAL_DROGAS_KG.': 'Drogas',
                   'Cocaína (ton)': 'Drogas'}
     df_combined.rename(columns=column_map, inplace=True)
-    
-    for col in ['lat', 'lon', 'Drogas', 'Armas']:
+
+    # Verificación de columnas
+    expected_columns = ['lat', 'lon', 'Drogas', 'Armas']
+    for col in expected_columns:
         if col not in df_combined.columns:
-            df_combined[col] = 0
-    
+            df_combined[col] = 0  # Crear la columna si no existe
+
+    # Reemplazo de valores no numéricos y conversión
     for col in ['lat', 'lon', 'Drogas', 'Armas']:
-        df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')
-    
+        df_combined[col] = df_combined[col].astype(str)  # Convertir a string
+        df_combined[col] = df_combined[col].str.replace(r'[^0-9.-]', '', regex=True)  # Eliminar caracteres no numéricos
+        df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce').fillna(0)  # Convertir y reemplazar NaN
+
+    # Eliminar filas con latitudes o longitudes vacías
     df_combined = df_combined.dropna(subset=['lat', 'lon'])
-    
+
+    # Mostrar el mapa de calor
     if page == "Mapa de Drogas":
         df_filtered = df_combined[df_combined['Drogas'] > 0]
         map_object = folium.Map(location=[-10, -75], zoom_start=4)
