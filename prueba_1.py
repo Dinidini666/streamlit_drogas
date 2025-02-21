@@ -48,10 +48,12 @@ def clean_data(df):
     df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
     df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
     df['Drogas'] = pd.to_numeric(df['Drogas'], errors='coerce')
-    df['Year'] = pd.to_numeric(df['Year'], errors='coerce').fillna(0).astype(int)
+    df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+    df = df.dropna(subset=['lat', 'lon', 'Year'])
+    df['Year'] = df['Year'].astype(int)
     if 'Armas' in df.columns:
         df['Armas'] = pd.to_numeric(df['Armas'], errors='coerce')
-    return df.dropna(subset=['lat', 'lon', 'Year'])
+    return df
 
 df_peru = clean_data(df_peru)
 df_colombia = clean_data(df_colombia)
@@ -59,17 +61,15 @@ df_ecuador = clean_data(df_ecuador)
 df_bolivia = clean_data(df_bolivia)
 
 drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
-drug_data.dropna(inplace=True)
 
-# Debugging: Check available years
-st.write("Años disponibles:", sorted(drug_data['Year'].unique()))
+drug_data.dropna(inplace=True)
 
 # Select type of map
 st.title("Mapa de Calor: Drogas y Armas")
 map_type = st.radio("Selecciona el tipo de mapa:", ["Drogas", "Armas"])
 
 # Year selection with "Todos los años" option
-years = sorted([y for y in drug_data['Year'].unique() if y > 0], reverse=True)
+years = sorted(drug_data['Year'].unique(), reverse=True)
 years.insert(0, "Todos los años")
 selected_year = st.selectbox("Selecciona el año:", years)
 
@@ -79,12 +79,12 @@ if map_type == "Drogas":
     else:
         data_year = drug_data[drug_data['Year'] == selected_year]
     
-    if len(data_year) > 2000:
-        data_year = data_year.sample(n=2000, random_state=42)
+    if len(data_year) > 3000:
+        data_year = data_year.sample(n=3000, random_state=42)
     
     if not data_year.empty:
         drug_map = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=data_year[['lat', 'lon', 'Drogas']].dropna().values, radius=8).add_to(drug_map)
+        HeatMap(data=data_year[['lat', 'lon', 'Drogas']].dropna().values, radius=7).add_to(drug_map)
         folium_static(drug_map)
     else:
         st.warning("No hay datos disponibles para el año seleccionado.")
@@ -97,13 +97,12 @@ elif map_type == "Armas":
     else:
         weapons_year_data = weapons_data[weapons_data['Year'] == selected_year]
     
-    if len(weapons_year_data) > 2000:
-        weapons_year_data = weapons_year_data.sample(n=2000, random_state=42)
+    if len(weapons_year_data) > 3000:
+        weapons_year_data = weapons_year_data.sample(n=3000, random_state=42)
     
     if not weapons_year_data.empty:
         weapon_map = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].dropna().values, radius=8).add_to(weapon_map)
+        HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].dropna().values, radius=7).add_to(weapon_map)
         folium_static(weapon_map)
     else:
         st.warning("No hay datos disponibles para el año seleccionado.")
-
