@@ -66,12 +66,17 @@ drug_data.dropna(inplace=True)
 st.title("Mapa de Calor: Drogas y Armas")
 map_type = st.radio("Selecciona el tipo de mapa:", ["Drogas", "Armas"])
 
-# Optimized map with year selection
+# Year selection with "Todos los años" option
 years = sorted(drug_data['Year'].dropna().unique(), reverse=True)
+years.insert(0, "Todos los años")
 selected_year = st.selectbox("Selecciona el año:", years)
 
 if map_type == "Drogas":
-    data_year = drug_data[drug_data['Year'] == selected_year]
+    if selected_year == "Todos los años":
+        data_year = drug_data
+    else:
+        data_year = drug_data[drug_data['Year'] == selected_year]
+    
     if len(data_year) > 500:
         data_year = data_year.sample(n=500, random_state=42)
     
@@ -81,7 +86,12 @@ if map_type == "Drogas":
 
 elif map_type == "Armas":
     weapons_data = df_colombia[['lat', 'lon', 'Armas', 'Year']].dropna(subset=['lat', 'lon', 'Armas', 'Year'])
-    weapons_year_data = weapons_data[weapons_data['Year'] == selected_year]
+    
+    if selected_year == "Todos los años":
+        weapons_year_data = weapons_data
+    else:
+        weapons_year_data = weapons_data[weapons_data['Year'] == selected_year]
+    
     if len(weapons_year_data) > 500:
         weapons_year_data = weapons_year_data.sample(n=500, random_state=42)
     
