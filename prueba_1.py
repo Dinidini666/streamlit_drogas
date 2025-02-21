@@ -85,10 +85,10 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     
     df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
     
-    df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
-    df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'CANTIDAD_ARMAS': 'Armas'}, inplace=True)
-    df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
-    df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
+    df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Ubicacion': 'Ubicacion'}, inplace=True)
+    df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'CANTIDAD_ARMAS': 'Armas', 'Ubicacion': 'Ubicacion'}, inplace=True)
+    df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Ubicacion': 'Ubicacion'}, inplace=True)
+    df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Ubicacion': 'Ubicacion'}, inplace=True)
     
     # Convertir a numérico y filtrar datos válidos
     drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
@@ -99,15 +99,13 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
         drug_map = folium.Map(location=[-10, -75], zoom_start=4)
         HeatMap(data=drug_data[['lat', 'lon', 'Drogas']].values, radius=8, max_val=drug_data['Drogas'].max()).add_to(drug_map)
         for _, row in drug_data.iterrows():
-            folium.Marker(
+            folium.CircleMarker(
                 location=[row['lat'], row['lon']],
-                popup=f"Cantidad: {row['Drogas']} kg",
-                icon=folium.Icon(color='red', icon='info-sign')
+                radius=3,
+                color='red',
+                fill=True,
+                fill_color='red',
+                fill_opacity=0.7,
+                popup=f"{row['Ubicacion']} - Cantidad: {row['Drogas']} kg"
             ).add_to(drug_map)
         folium_static(drug_map)
-    else:
-        weapons_data = df_colombia[['lat', 'lon', 'Armas']].dropna()
-        heatmap_data = weapons_data[['lat', 'lon', 'Armas']].values
-        map_view = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=heatmap_data, radius=8).add_to(map_view)
-        folium_static(map_view)
