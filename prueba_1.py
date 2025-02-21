@@ -92,20 +92,22 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     
     # Convertir a numérico y filtrar datos válidos
     drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
-    drug_data['lat'] = pd.to_numeric(drug_data['lat'], errors='coerce')
-    drug_data['lon'] = pd.to_numeric(drug_data['lon'], errors='coerce')
-    drug_data['Drogas'] = pd.to_numeric(drug_data['Drogas'], errors='coerce')
+    drug_data[['lat', 'lon', 'Drogas']] = drug_data[['lat', 'lon', 'Drogas']].apply(pd.to_numeric, errors='coerce')
     drug_data = drug_data.dropna(subset=['lat', 'lon', 'Drogas'])
     
     if page == "Mapa de Drogas":
-        heatmap_data = drug_data[['lat', 'lon', 'Drogas']].values
+        drug_map = folium.Map(location=[-10, -75], zoom_start=4)
+        HeatMap(data=drug_data[['lat', 'lon', 'Drogas']].values, radius=8, max_val=drug_data['Drogas'].max()).add_to(drug_map)
+        for _, row in drug_data.iterrows():
+            folium.Marker(
+                location=[row['lat'], row['lon']],
+                popup=f"Cantidad: {row['Drogas']} kg",
+                icon=folium.Icon(color='red', icon='info-sign')
+            ).add_to(drug_map)
+        folium_static(drug_map)
     else:
         weapons_data = df_colombia[['lat', 'lon', 'Armas']].dropna()
         heatmap_data = weapons_data[['lat', 'lon', 'Armas']].values
-    
-    if heatmap_data.size == 0:
-        st.warning("No hay datos válidos para mostrar en el mapa.")
-    else:
         map_view = folium.Map(location=[-10, -75], zoom_start=4)
         HeatMap(data=heatmap_data, radius=8).add_to(map_view)
         folium_static(map_view)
