@@ -37,14 +37,21 @@ df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGI
 df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
 df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
 
-# Ensure columns exist before merging
-for df, name in zip([df_peru, df_colombia, df_ecuador, df_bolivia], ["Perú", "Colombia", "Ecuador", "Bolivia"]):
-    missing_columns = [col for col in ['lat', 'lon', 'Drogas'] if col not in df.columns]
-    if missing_columns:
-        print(f"⚠️ Advertencia: {name} no tiene las columnas {missing_columns}")
+# Ensure all required columns exist
+def ensure_columns(df, required_columns):
+    for col in required_columns:
+        if col not in df.columns:
+            df[col] = pd.NA  # Fill missing columns with NaN
+            print(f"⚠️ Advertencia: Se creó la columna faltante '{col}' en el DataFrame")
+
+required_columns = ['lat', 'lon', 'Drogas']
+ensure_columns(df_peru, required_columns)
+ensure_columns(df_colombia, required_columns)
+ensure_columns(df_ecuador, required_columns)
+ensure_columns(df_bolivia, required_columns)
 
 # Convert to numeric
-df_ecuador['Drogas'] = pd.to_numeric(df_ecuador.get('Drogas', pd.NA), errors='coerce')
+df_ecuador['Drogas'] = pd.to_numeric(df_ecuador['Drogas'], errors='coerce')
 
 drug_data = pd.concat([
     df_peru[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas']),
@@ -67,4 +74,3 @@ st.title("Mapa de Calor: Armas Incautadas")
 weapon_map = folium.Map(location=[-10, -75], zoom_start=4)
 HeatMap(data=weapons_data[['lat', 'lon', 'Armas']].values, radius=15).add_to(weapon_map)
 folium_static(weapon_map)
-
