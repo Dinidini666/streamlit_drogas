@@ -25,11 +25,23 @@ df_bolivia_2023 = pd.read_excel(file_bolivia, sheet_name="2023")
 
 df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
 
+# Print column names for debugging
+print("Perú Columns:", df_peru.columns)
+print("Colombia Columns:", df_colombia.columns)
+print("Ecuador Columns:", df_ecuador.columns)
+print("Bolivia Columns:", df_bolivia.columns)
+
 # Standardize columns
-df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
-df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
-df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
-df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
+df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas'}, inplace=True)
+df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas'}, inplace=True)
+df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas'}, inplace=True)
+df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas'}, inplace=True)
+
+# Check if 'Drogas' column exists
+for df, name in zip([df_peru, df_colombia, df_ecuador, df_bolivia], 
+                     ["Perú", "Colombia", "Ecuador", "Bolivia"]):
+    if 'Drogas' not in df.columns:
+        print(f"⚠️ Advertencia: La columna 'Drogas' no está en {name}")
 
 # Convert to numeric
 df_ecuador['Drogas'] = pd.to_numeric(df_ecuador['Drogas'], errors='coerce')
