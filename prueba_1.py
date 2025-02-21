@@ -26,10 +26,10 @@ df_bolivia_2023 = pd.read_excel(file_bolivia, sheet_name="2023")
 df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
 
 # Standardize column names
-df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
-df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
-df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
-df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
+df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Año': 'Year'}, inplace=True)
+df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Año': 'Year'}, inplace=True)
+df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Año': 'Year'}, inplace=True)
+df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Año': 'Year'}, inplace=True)
 
 # Ensure required columns exist
 def ensure_columns(df, required_columns):
@@ -37,7 +37,7 @@ def ensure_columns(df, required_columns):
         if col not in df.columns:
             df[col] = pd.NA
 
-required_columns = ['lat', 'lon', 'Drogas', 'Año']
+required_columns = ['lat', 'lon', 'Drogas', 'Year']
 ensure_columns(df_peru, required_columns)
 ensure_columns(df_colombia, required_columns)
 ensure_columns(df_ecuador, required_columns)
@@ -48,8 +48,8 @@ def clean_data(df):
     df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
     df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
     df['Drogas'] = pd.to_numeric(df['Drogas'], errors='coerce')
-    df['Año'] = pd.to_numeric(df['Año'], errors='coerce')
-    return df.dropna(subset=['lat', 'lon', 'Drogas', 'Año'])
+    df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+    return df.dropna(subset=['lat', 'lon', 'Drogas', 'Year'])
 
 df_peru = clean_data(df_peru)
 df_colombia = clean_data(df_colombia)
@@ -62,15 +62,29 @@ drug_data.dropna(inplace=True)
 
 # Optimized map with year selection
 st.title("Mapa de Calor: Drogas Decomisadas por Año")
-years = sorted(drug_data['Año'].unique(), reverse=True)
-selected_year = st.selectbox("Selecciona el año:", years)
-data_year = drug_data[drug_data['Año'] == selected_year]
+years = sorted(drug_data['Year'].dropna().unique(), reverse=True)
+if years:
+    selected_year = st.selectbox("Selecciona el año:", years)
+    data_year = drug_data[drug_data['Year'] == selected_year]
+    if len(data_year) > 1000:
+        data_year = data_year.sample(n=1000, random_state=42)
+    
+    drug_map = folium.Map(location=[-10, -75], zoom_start=4)
+    HeatMap(data=data_year[['lat', 'lon', 'Drogas']].values, radius=10).add_to(drug_map)
+    folium_static(drug_map)
 
-# Reduce data points to improve performance
-if len(data_year) > 1000:
-    data_year = data_year.sample(n=1000, random_state=42)
+# Weapons Map
+st.title("Mapa de Calor: Armas Incautadas")
+df_colombia.rename(columns={'CANTIDAD_ARMAS': 'Armas'}, inplace=True)
+weapons_data = df_colombia[['lat', 'lon', 'Armas', 'Year']].dropna(subset=['lat', 'lon', 'Armas', 'Year'])
 
-# Create map
-drug_map = folium.Map(location=[-10, -75], zoom_start=4)
-HeatMap(data=data_year[['lat', 'lon', 'Drogas']].values, radius=10).add_to(drug_map)
-folium_static(drug_map)
+years_weapons = sorted(weapons_data['Year'].dropna().unique(), reverse=True)
+if years_weapons:
+    selected_year_weapons = st.selectbox("Selecciona el año (Armas):", years_weapons)
+    weapons_year_data = weapons_data[weapons_data['Year'] == selected_year_weapons]
+    if len(weapons_year_data) > 1000:
+        weapons_year_data = weapons_year_data.sample(n=1000, random_state=42)
+    
+    weapon_map = folium.Map(location=[-10, -75], zoom_start=4)
+    HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].values, radius=10).add_to(weapon_map)
+    folium_static(weapon_map)
