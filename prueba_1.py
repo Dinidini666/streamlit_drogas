@@ -59,7 +59,6 @@ df_ecuador = clean_data(df_ecuador)
 df_bolivia = clean_data(df_bolivia)
 
 drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
-
 drug_data.dropna(inplace=True)
 
 # Select type of map
@@ -67,34 +66,34 @@ st.title("Mapa de Calor: Drogas y Armas")
 map_type = st.radio("Selecciona el tipo de mapa:", ["Drogas", "Armas"])
 
 # Year selection with "Todos los años" option
-years = sorted(drug_data['Year'].dropna().unique(), reverse=True)
+years = sorted([y for y in drug_data['Year'].dropna().unique() if pd.notna(y)], reverse=True)
 years.insert(0, "Todos los años")
 selected_year = st.selectbox("Selecciona el año:", years)
 
 if map_type == "Drogas":
     if selected_year == "Todos los años":
-        data_year = drug_data
+        data_year = drug_data.copy()
     else:
         data_year = drug_data[drug_data['Year'] == selected_year]
     
-    if len(data_year) > 500:
-        data_year = data_year.sample(n=500, random_state=42)
+    if len(data_year) > 2000:
+        data_year = data_year.sample(n=2000, random_state=42)
     
     drug_map = folium.Map(location=[-10, -75], zoom_start=4)
-    HeatMap(data=data_year[['lat', 'lon', 'Drogas']].values, radius=8).add_to(drug_map)
+    HeatMap(data=data_year[['lat', 'lon', 'Drogas']].dropna().values, radius=8).add_to(drug_map)
     folium_static(drug_map)
 
 elif map_type == "Armas":
     weapons_data = df_colombia[['lat', 'lon', 'Armas', 'Year']].dropna(subset=['lat', 'lon', 'Armas', 'Year'])
     
     if selected_year == "Todos los años":
-        weapons_year_data = weapons_data
+        weapons_year_data = weapons_data.copy()
     else:
         weapons_year_data = weapons_data[weapons_data['Year'] == selected_year]
     
-    if len(weapons_year_data) > 500:
-        weapons_year_data = weapons_year_data.sample(n=500, random_state=42)
+    if len(weapons_year_data) > 2000:
+        weapons_year_data = weapons_year_data.sample(n=2000, random_state=42)
     
     weapon_map = folium.Map(location=[-10, -75], zoom_start=4)
-    HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].values, radius=8).add_to(weapon_map)
+    HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].dropna().values, radius=8).add_to(weapon_map)
     folium_static(weapon_map)
