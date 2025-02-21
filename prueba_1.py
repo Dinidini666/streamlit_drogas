@@ -12,7 +12,7 @@ from streamlit_folium import folium_static
 from folium.plugins import HeatMap
 
 # Introducción y navegación
-st.title("Trafico ilícitro de estupefacientes y armas en la Comunidad Andina del año 2019 en adelante")
+st.title("Mapa de Calor: Drogas y Armas en la Comunidad Andina")
 
 st.markdown("""
 ## Introducción
@@ -90,25 +90,19 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
     df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
     
-    required_columns = ['lat', 'lon', 'Drogas']
-    for col in required_columns:
-        if col not in df_bolivia.columns:
-            df_bolivia[col] = pd.NA
-    
-    df_peru = df_peru.dropna(subset=required_columns)
-    df_colombia = df_colombia.dropna(subset=required_columns)
-    df_ecuador = df_ecuador.dropna(subset=required_columns)
-    df_bolivia = df_bolivia.dropna(subset=required_columns)
-    
-    st.write("Columnas en df_bolivia:", df_bolivia.columns)
+    # Filtrar datos con coordenadas válidas
+    drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
+    drug_data = drug_data[(drug_data['lat'].between(-90, 90)) & (drug_data['lon'].between(-180, 180))]
     
     if page == "Mapa de Drogas":
-        drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
-        heatmap_data = drug_data[['lat', 'lon', 'Drogas']].values
+        heatmap_data = drug_data[['lat', 'lon', 'Drogas']].dropna().values
     else:
         weapons_data = df_colombia[['lat', 'lon', 'Armas']].dropna()
-        heatmap_data = weapons_data[['lat', 'lon', 'Armas']].values
+        heatmap_data = weapons_data[['lat', 'lon', 'Armas']].dropna().values
     
-    map_view = folium.Map(location=[-10, -75], zoom_start=4)
-    HeatMap(data=heatmap_data, radius=8).add_to(map_view)
-    folium_static(map_view)
+    if heatmap_data.size == 0:
+        st.warning("No hay datos válidos para mostrar en el mapa.")
+    else:
+        map_view = folium.Map(location=[-10, -75], zoom_start=4)
+        HeatMap(data=heatmap_data, radius=8).add_to(map_view)
+        folium_static(map_view)
