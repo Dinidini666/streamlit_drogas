@@ -40,29 +40,13 @@ if page == "Información General":
             "Proyecto DISRUPT"
         ],
         "Enfoque": ["Drogas", "Armas", "Drogas", "Drogas", "Drogas", "Armas"],
-        "Normativa Asociada": [
-            "Convención Única sobre Estupefacientes de 1961; Convenio sobre Sustancias Sicotrópicas de 1971; Convención de las Naciones Unidas contra el Tráfico Ilícito de Estupefacientes y Sustancias Sicotrópicas de 1988",
-            "Protocolo contra la Fabricación y el Tráfico Ilícitos de Armas de Fuego (2001)",
-            "Convención Interamericana contra la Fabricación y el Tráfico Ilícitos de Armas de Fuego (CIFTA) de 1997",
-            "Estrategia de la UE en materia de lucha contra la droga 2021-2025",
-            "No se asocia a una normativa específica, pero opera bajo el marco de cooperación internacional en materia de control de drogas.",
-            "No se asocia a una normativa específica, pero se alinea con el Protocolo contra la Fabricación y el Tráfico Ilícitos de Armas de Fuego."
-        ],
-        "Países de la Comunidad Andina Firmantes": [
-            "Bolivia, Colombia, Ecuador y Perú",
-            "Bolivia, Colombia, Ecuador y Perú",
-            "Bolivia, Colombia, Ecuador y Perú",
-            "No aplica directamente a la Comunidad Andina",
-            "Bolivia, Colombia, Ecuador y Perú",
-            "Bolivia, Colombia, Ecuador y Perú"
-        ]
     }
     
     df_info = pd.DataFrame(data)
     st.dataframe(df_info)
 
 # Mapas de Drogas y Armas
-if page == "Mapa de Drogas" or page == "Mapa de Armas":
+if page in ["Mapa de Drogas", "Mapa de Armas"]:
     st.title(f"Mapa de Calor: {page.split()[1]} en la Comunidad Andina")
     
     # Cargar los datos
@@ -75,39 +59,54 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     
     dataframes = []
     for country, file in files.items():
-        with pd.ExcelFile(file) as xls:
-            sheet_name = 'Sheet1' if 'Sheet1' in xls.sheet_names else xls.sheet_names[0]
-            df = pd.read_excel(xls, sheet_name=sheet_name)
-            df["Pais"] = country
-            dataframes.append(df)
-    
-    df_combined = pd.concat(dataframes, ignore_index=True)
-    
-    column_map = {'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon',
-                  'CANTIDAD_DROGA': 'Drogas', 'CANTIDAD_ARMAS': 'Armas', 'TOTAL_DROGAS_KG.': 'Drogas',
-                  'Cocaína (ton)': 'Drogas'}
-    df_combined.rename(columns=column_map, inplace=True)
-    
-    for col in ['lat', 'lon', 'Drogas', 'Armas']:
-        if col not in df_combined.columns:
-            df_combined[col] = 0
-    
-    # SOLUCIÓN AL ERROR: Limpiar y convertir correctamente a numérico
-    for col in ['lat', 'lon', 'Drogas', 'Armas']:
-        if col in df_combined.columns:  # Verifica que la columna existe
-            df_combined[col] = df_combined[col].fillna('')  # Reemplaza NaN con cadena vacía
-            df_combined[col] = df_combined[col].astype(str).str.replace(r'[^0-9.-]', '', regex=True)
-            df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')  # Convierte a número
+        try:
+            with pd.ExcelFile(file) as xls:
+                sheet_name = 'Sheet1' if 'Sheet1' in xls.sheet_names else xls.sheet_names[0]
+                df = pd.read_excel(xls, sheet_name=sheet_name)
+                df["Pais"] = country
+                dataframes.append(df)
+        except Exception as e:
+            st.error(f"Error al leer {file}: {e}")
 
-    
+    df_combined = pd.concat(dataframes, ignore_index=True)
+
+    # Normalizar nombres de columnas
+    column_map = {
+        'Droga Decomisada (kg)': 'Drogas',
+        'CANTIDAD_DROGA': 'Drogas',
+        'TOTAL_DROGAS_KG.': 'Drogas',
+        'Cocaína (ton)': 'Drogas',
+        'Latitud': 'lat', 'LATITUD': 'lat',
+        'Longitud': 'lon', 'LONGITUD': 'lon',
+        'CANTIDAD_ARMAS': 'Armas'
+    }
+    df_combined.rename(columns=column_map, inplace=True)
+
+    # Normalizar la columna de ubicación
+    location_map = {
+        'Departamento': 'Ubicacion',
+        'DEPARTAMENTO': 'Ubicacion',
+        'PROVINCIA': 'Ubicacion'
+    }
+    df_combined.rename(columns=location_map, inplace=True)
+
+    # Manejar valores no numéricos y NaN
+    for col in ['lat', 'lon', 'Drogas', 'Armas']:
+        if col in df_combined.columns:
+            df_combined[col] = df_combined[col].astype(str).fillna('')  # Convertir NaN a str
+            df_combined[col] = df_combined[col].str.replace(r'[^0-9.-]', '', regex=True)  # Limpiar caracteres no numéricos
+            df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')  # Convertir a número
+
+    # Eliminar filas con coordenadas vacías
     df_combined = df_combined.dropna(subset=['lat', 'lon'])
-    
+
+    # Crear el mapa de calor
     if page == "Mapa de Drogas":
         df_filtered = df_combined[df_combined['Drogas'] > 0]
         map_object = folium.Map(location=[-10, -75], zoom_start=4)
         HeatMap(data=df_filtered[['lat', 'lon', 'Drogas']].values, radius=8).add_to(map_object)
 
-        # Agregar marcadores interactivos
+        # Agregar marcadores
         for _, row in df_filtered.iterrows():
             folium.Marker(
                 location=[row["lat"], row["lon"]],
@@ -120,7 +119,7 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
         map_object = folium.Map(location=[-10, -75], zoom_start=4)
         HeatMap(data=df_filtered[['lat', 'lon', 'Armas']].values, radius=8).add_to(map_object)
 
-        # Agregar marcadores interactivos
+        # Agregar marcadores
         for _, row in df_filtered.iterrows():
             folium.Marker(
                 location=[row["lat"], row["lon"]],
@@ -128,4 +127,5 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
                 icon=folium.Icon(color="blue", icon="info-sign")
             ).add_to(map_object)
 
+    # Mostrar el mapa en Streamlit
     folium_static(map_object)
