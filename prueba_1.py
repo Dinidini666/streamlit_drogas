@@ -91,10 +91,16 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
     
     required_columns = ['lat', 'lon', 'Drogas']
+    for col in required_columns:
+        if col not in df_bolivia.columns:
+            df_bolivia[col] = pd.NA
+    
     df_peru = df_peru.dropna(subset=required_columns)
     df_colombia = df_colombia.dropna(subset=required_columns)
     df_ecuador = df_ecuador.dropna(subset=required_columns)
     df_bolivia = df_bolivia.dropna(subset=required_columns)
+    
+    st.write("Columnas en df_bolivia:", df_bolivia.columns)
     
     if page == "Mapa de Drogas":
         drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
