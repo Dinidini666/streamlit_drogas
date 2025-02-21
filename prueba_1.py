@@ -81,9 +81,11 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     
     dataframes = []
     for country, file in files.items():
-        df = pd.read_excel(file, sheet_name="Sheet1")
-        df["Pais"] = country
-        dataframes.append(df)
+        with pd.ExcelFile(file) as xls:
+            sheet_name = 'Sheet1' if 'Sheet1' in xls.sheet_names else xls.sheet_names[0]
+            df = pd.read_excel(xls, sheet_name=sheet_name)
+            df["Pais"] = country
+            dataframes.append(df)
     
     df_combined = pd.concat(dataframes, ignore_index=True)
     
