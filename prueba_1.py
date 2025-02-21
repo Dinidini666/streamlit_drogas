@@ -12,7 +12,7 @@ from streamlit_folium import folium_static
 from folium.plugins import HeatMap
 
 # Introducción y navegación
-st.title("Mapa de Calor: Drogas y Armas en la Comunidad Andina")
+st.title("Trafico ilícitro de estupefacientes y armas en la Comunidad Andina del año 2019 en adelante")
 
 st.markdown("""
 ## Introducción
