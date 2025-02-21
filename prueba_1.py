@@ -27,7 +27,7 @@ df_bolivia = pd.concat([df_bolivia_2022, df_bolivia_2023])
 
 # Standardize column names
 df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Año': 'Year'}, inplace=True)
-df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Año': 'Year'}, inplace=True)
+df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Año': 'Year', 'CANTIDAD_ARMAS': 'Armas'}, inplace=True)
 df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon', 'Año': 'Year'}, inplace=True)
 df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon', 'Año': 'Year'}, inplace=True)
 
@@ -49,7 +49,9 @@ def clean_data(df):
     df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
     df['Drogas'] = pd.to_numeric(df['Drogas'], errors='coerce')
     df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
-    return df.dropna(subset=['lat', 'lon', 'Drogas', 'Year'])
+    if 'Armas' in df.columns:
+        df['Armas'] = pd.to_numeric(df['Armas'], errors='coerce')
+    return df.dropna(subset=['lat', 'lon', 'Year'])
 
 df_peru = clean_data(df_peru)
 df_colombia = clean_data(df_colombia)
@@ -60,31 +62,29 @@ drug_data = pd.concat([df_peru, df_colombia, df_ecuador, df_bolivia])
 
 drug_data.dropna(inplace=True)
 
+# Select type of map
+st.title("Mapa de Calor: Drogas y Armas")
+map_type = st.radio("Selecciona el tipo de mapa:", ["Drogas", "Armas"])
+
 # Optimized map with year selection
-st.title("Mapa de Calor: Drogas Decomisadas por Año")
 years = sorted(drug_data['Year'].dropna().unique(), reverse=True)
-if years:
-    selected_year = st.selectbox("Selecciona el año:", years)
+selected_year = st.selectbox("Selecciona el año:", years)
+
+if map_type == "Drogas":
     data_year = drug_data[drug_data['Year'] == selected_year]
-    if len(data_year) > 1000:
-        data_year = data_year.sample(n=1000, random_state=42)
+    if len(data_year) > 500:
+        data_year = data_year.sample(n=500, random_state=42)
     
     drug_map = folium.Map(location=[-10, -75], zoom_start=4)
-    HeatMap(data=data_year[['lat', 'lon', 'Drogas']].values, radius=10).add_to(drug_map)
+    HeatMap(data=data_year[['lat', 'lon', 'Drogas']].values, radius=8).add_to(drug_map)
     folium_static(drug_map)
 
-# Weapons Map
-st.title("Mapa de Calor: Armas Incautadas")
-df_colombia.rename(columns={'CANTIDAD_ARMAS': 'Armas'}, inplace=True)
-weapons_data = df_colombia[['lat', 'lon', 'Armas', 'Year']].dropna(subset=['lat', 'lon', 'Armas', 'Year'])
-
-years_weapons = sorted(weapons_data['Year'].dropna().unique(), reverse=True)
-if years_weapons:
-    selected_year_weapons = st.selectbox("Selecciona el año (Armas):", years_weapons)
-    weapons_year_data = weapons_data[weapons_data['Year'] == selected_year_weapons]
-    if len(weapons_year_data) > 1000:
-        weapons_year_data = weapons_year_data.sample(n=1000, random_state=42)
+elif map_type == "Armas":
+    weapons_data = df_colombia[['lat', 'lon', 'Armas', 'Year']].dropna(subset=['lat', 'lon', 'Armas', 'Year'])
+    weapons_year_data = weapons_data[weapons_data['Year'] == selected_year]
+    if len(weapons_year_data) > 500:
+        weapons_year_data = weapons_year_data.sample(n=500, random_state=42)
     
     weapon_map = folium.Map(location=[-10, -75], zoom_start=4)
-    HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].values, radius=10).add_to(weapon_map)
+    HeatMap(data=weapons_year_data[['lat', 'lon', 'Armas']].values, radius=8).add_to(weapon_map)
     folium_static(weapon_map)
