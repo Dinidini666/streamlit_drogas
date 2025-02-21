@@ -31,24 +31,27 @@ print("Colombia Columns:", df_colombia.columns)
 print("Ecuador Columns:", df_ecuador.columns)
 print("Bolivia Columns:", df_bolivia.columns)
 
-# Standardize columns
-df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas'}, inplace=True)
-df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas'}, inplace=True)
-df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas'}, inplace=True)
-df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas'}, inplace=True)
+# Standardize column names
+df_peru.rename(columns={'Droga Decomisada (kg)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
+df_colombia.rename(columns={'CANTIDAD_DROGA': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
+df_ecuador.rename(columns={'TOTAL_DROGAS_KG.': 'Drogas', 'LATITUD': 'lat', 'LONGITUD': 'lon'}, inplace=True)
+df_bolivia.rename(columns={'Cocaína (ton)': 'Drogas', 'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
 
-# Check if 'Drogas' column exists
-for df, name in zip([df_peru, df_colombia, df_ecuador, df_bolivia], 
-                     ["Perú", "Colombia", "Ecuador", "Bolivia"]):
-    if 'Drogas' not in df.columns:
-        print(f"⚠️ Advertencia: La columna 'Drogas' no está en {name}")
+# Ensure columns exist before merging
+for df, name in zip([df_peru, df_colombia, df_ecuador, df_bolivia], ["Perú", "Colombia", "Ecuador", "Bolivia"]):
+    missing_columns = [col for col in ['lat', 'lon', 'Drogas'] if col not in df.columns]
+    if missing_columns:
+        print(f"⚠️ Advertencia: {name} no tiene las columnas {missing_columns}")
 
 # Convert to numeric
-df_ecuador['Drogas'] = pd.to_numeric(df_ecuador['Drogas'], errors='coerce')
+df_ecuador['Drogas'] = pd.to_numeric(df_ecuador.get('Drogas', pd.NA), errors='coerce')
 
-drug_data = pd.concat([df_peru[['lat', 'lon', 'Drogas']], df_colombia[['lat', 'lon', 'Drogas']], df_ecuador[['lat', 'lon', 'Drogas']], df_bolivia[['lat', 'lon', 'Drogas']]])
-
-drug_data.dropna(inplace=True)
+drug_data = pd.concat([
+    df_peru[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas']),
+    df_colombia[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas']),
+    df_ecuador[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas']),
+    df_bolivia[['lat', 'lon', 'Drogas']].dropna(subset=['lat', 'lon', 'Drogas'])
+])
 
 # Map for drugs
 st.title("Mapa de Calor: Drogas Decomisadas")
@@ -58,7 +61,7 @@ folium_static(drug_map)
 
 # Map for weapons
 df_colombia.rename(columns={'CANTIDAD_ARMAS': 'Armas'}, inplace=True)
-weapons_data = df_colombia[['lat', 'lon', 'Armas']].dropna()
+weapons_data = df_colombia[['lat', 'lon', 'Armas']].dropna(subset=['lat', 'lon', 'Armas'])
 
 st.title("Mapa de Calor: Armas Incautadas")
 weapon_map = folium.Map(location=[-10, -75], zoom_start=4)
