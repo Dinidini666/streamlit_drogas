@@ -94,8 +94,11 @@ if page == "Mapa de Drogas" or page == "Mapa de Armas":
     
     # SOLUCIÓN AL ERROR: Limpiar y convertir correctamente a numérico
     for col in ['lat', 'lon', 'Drogas', 'Armas']:
-        df_combined[col] = df_combined[col].astype(str).str.replace(r'[^0-9.-]', '', regex=True)  # Eliminar caracteres no numéricos
-        df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')  # Convertir a número
+        if col in df_combined.columns:  # Verifica que la columna existe
+            df_combined[col] = df_combined[col].fillna('')  # Reemplaza NaN con cadena vacía
+            df_combined[col] = df_combined[col].astype(str).str.replace(r'[^0-9.-]', '', regex=True)
+            df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')  # Convierte a número
+
     
     df_combined = df_combined.dropna(subset=['lat', 'lon'])
     
