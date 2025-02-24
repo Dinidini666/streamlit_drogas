@@ -22,6 +22,15 @@ Utilice los botones a continuación para navegar entre los mapas de calor.
 # Sidebar para navegación
 page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas"])
 
+# Cargar los datos normalizados
+def load_data():
+    file_path = "datos_normalizados.csv"  # Reemplazar con la ruta correcta
+    return pd.read_csv(file_path)
+
+df = load_data()
+
+df.fillna(0, inplace=True)
+
 # Información General
 if page == "Información General":
     st.markdown("""
@@ -45,87 +54,26 @@ if page == "Información General":
     df_info = pd.DataFrame(data)
     st.dataframe(df_info)
 
-# Mapas de Drogas y Armas
-if page in ["Mapa de Drogas", "Mapa de Armas"]:
-    st.title(f"Mapa de Calor: {page.split()[1]} en la Comunidad Andina")
+# Mapa de Drogas
+elif page == "Mapa de Drogas":
+    variable = st.sidebar.selectbox(
+        "Seleccione la variable a visualizar:",
+        ["Cocaína (kg)", "Marihuana (kg)", "Base de Coca (kg)", "Sustancias Químicas Sólidas (kg)", "Sustancias Químicas Líquidas (L)"]
+    )
     
-    # Cargar los datos
-    files = {
-        "Peru": "consolidado_peru.xlsx",
-        "Colombia": "consolidado_colombia.xlsx",
-        "Ecuador": "consolidado_ecuador.xlsx",
-        "Bolivia": "consolidado_bolivia.xlsx"
-    }
+    m = folium.Map(location=[-10, -70], zoom_start=4)
+    heat_data = df[["Latitud", "Longitud", variable]].dropna().values.tolist()
+    HeatMap(heat_data).add_to(m)
     
-    dataframes = []
-    for country, file in files.items():
-        try:
-            with pd.ExcelFile(file) as xls:
-                sheet_name = 'Sheet1' if 'Sheet1' in xls.sheet_names else xls.sheet_names[0]
-                df = pd.read_excel(xls, sheet_name=sheet_name)
-                df["Pais"] = country
-                dataframes.append(df)
-        except Exception as e:
-            st.error(f"Error al leer {file}: {e}")
+    st.markdown(f"### Mapa de Calor - {variable}")
+    folium_static(m)
 
-    df_combined = pd.concat(dataframes, ignore_index=True)
+# Mapa de Armas
+elif page == "Mapa de Armas":
+    m = folium.Map(location=[-10, -70], zoom_start=4)
+    heat_data = df[["Latitud", "Longitud", "Armas Incautadas"]].dropna().values.tolist()
+    HeatMap(heat_data).add_to(m)
+    
+    st.markdown("### Mapa de Calor - Armas Incautadas")
+    folium_static(m)
 
-    # Normalizar nombres de columnas
-    column_map = {
-        'Droga Decomisada (kg)': 'Drogas',
-        'CANTIDAD_DROGA': 'Drogas',
-        'TOTAL_DROGAS_KG.': 'Drogas',
-        'Cocaína (ton)': 'Drogas',
-        'Latitud': 'lat', 'LATITUD': 'lat',
-        'Longitud': 'lon', 'LONGITUD': 'lon',
-        'CANTIDAD_ARMAS': 'Armas'
-    }
-    df_combined.rename(columns=column_map, inplace=True)
-
-    # Normalizar la columna de ubicación
-    location_map = {
-        'Departamento': 'Ubicacion',
-        'DEPARTAMENTO': 'Ubicacion',
-        'PROVINCIA': 'Ubicacion'
-    }
-    df_combined.rename(columns=location_map, inplace=True)
-
-    # Manejar valores no numéricos y NaN
-    for col in ['lat', 'lon', 'Drogas', 'Armas']:
-        if col in df_combined.columns:
-            df_combined[col] = df_combined[col].astype(str)  # Convertir todo a string temporalmente
-            df_combined[col] = df_combined[col].str.replace(r'[^0-9.-]', '', regex=True)  # Limpiar caracteres no numéricos
-            df_combined[col] = pd.to_numeric(df_combined[col], errors='coerce')  # Convertir a número
-
-    # Eliminar filas con coordenadas vacías
-    df_combined = df_combined.dropna(subset=['lat', 'lon'])
-
-    # Crear el mapa de calor
-    if page == "Mapa de Drogas":
-        df_filtered = df_combined[df_combined['Drogas'] > 0]
-        map_object = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=df_filtered[['lat', 'lon', 'Drogas']].values, radius=8).add_to(map_object)
-
-        # Agregar marcadores
-        for _, row in df_filtered.iterrows():
-            folium.Marker(
-                location=[row["lat"], row["lon"]],
-                popup=f"<b>País:</b> {row['Pais']}<br><b>Drogas decomisadas:</b> {row['Drogas']} kg",
-                icon=folium.Icon(color="red", icon="info-sign")
-            ).add_to(map_object)
-
-    else:
-        df_filtered = df_combined[df_combined['Armas'] > 0]
-        map_object = folium.Map(location=[-10, -75], zoom_start=4)
-        HeatMap(data=df_filtered[['lat', 'lon', 'Armas']].values, radius=8).add_to(map_object)
-
-        # Agregar marcadores
-        for _, row in df_filtered.iterrows():
-            folium.Marker(
-                location=[row["lat"], row["lon"]],
-                popup=f"<b>País:</b> {row['Pais']}<br><b>Armas decomisadas:</b> {row['Armas']}",
-                icon=folium.Icon(color="blue", icon="info-sign")
-            ).add_to(map_object)
-
-    # Mostrar el mapa en Streamlit
-    folium_static(map_object)
