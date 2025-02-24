@@ -24,7 +24,7 @@ page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Dr
 
 # Cargar los datos normalizados
 def load_data():
-    file_path = "datos_normalizados.csv"  # Reemplazar con la ruta correcta
+    file_path = "Datos_Normalizados.csv"  # Reemplazar con la ruta correcta
     return pd.read_csv(file_path)
 
 df = load_data()
