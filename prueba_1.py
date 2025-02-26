@@ -54,6 +54,22 @@ if page == "Información General":
     df_info = pd.DataFrame(data)
     st.dataframe(df_info)
 
+# Función para agregar leyenda
+def add_legend(map_object):
+    legend_html = '''
+     <div style="position: fixed; 
+                 bottom: 50px; left: 50px; width: 200px; height: 120px; 
+                 background-color: white; z-index:9999; font-size:14px;
+                 border:2px solid grey; padding: 10px;">
+     <b> Leyenda del Mapa de Calor </b><br>
+     <i style="background: blue; width: 10px; height: 10px; display: inline-block;"></i> Baja Intensidad <br>
+     <i style="background: green; width: 10px; height: 10px; display: inline-block;"></i> Media Intensidad <br>
+     <i style="background: yellow; width: 10px; height: 10px; display: inline-block;"></i> Alta Intensidad <br>
+     <i style="background: red; width: 10px; height: 10px; display: inline-block;"></i> Muy Alta Intensidad <br>
+     </div>
+     '''
+    map_object.get_root().html.add_child(folium.Element(legend_html))
+
 # Mapa de Drogas
 elif page == "Mapa de Drogas":
     variable = st.sidebar.selectbox(
@@ -76,6 +92,8 @@ elif page == "Mapa de Drogas":
         
     heat_data = df[["Latitud", "Longitud", variable]].dropna().values.tolist()
     HeatMap(heat_data).add_to(m)
+
+    add_legend(m)
     
     st.markdown(f"### Mapa de Calor - {variable}")
     folium_static(m)
@@ -97,6 +115,8 @@ elif page == "Mapa de Armas":
         
     heat_data = df[["Latitud", "Longitud", "Armas Incautadas"]].dropna().values.tolist()
     HeatMap(heat_data).add_to(m)
+
+    add_legend(m)
     
     st.markdown("### Mapa de Calor - Armas Incautadas")
     folium_static(m)
