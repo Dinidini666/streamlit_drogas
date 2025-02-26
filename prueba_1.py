@@ -66,11 +66,11 @@ elif page == "Mapa de Drogas":
     for _, row in df.iterrows():
         folium.CircleMarker(
             location=[row["Latitud"], row["Longitud"]],
-            radius=3
-            color='purple'
-            fill=True
-            fill_color='purple'
-            fill_opacity=0.6
+            radius=3,
+            color='purple',
+            fill=True,
+            fill_color='purple',
+            fill_opacity=0.6,
             popup=f"Ubicación: {row['Ubicación']}<br>{variable}: {row[variable]}",
         ).add_to(m)
         
