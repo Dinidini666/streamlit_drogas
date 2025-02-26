@@ -58,14 +58,14 @@ if page == "Información General":
 def add_legend(map_object):
     legend_html = '''
      <div style="position: fixed; 
-                 bottom: 50px; left: 50px; width: 200px; height: 120px; 
+                 bottom: 20px; left: 20px; width: 250px; height: 140px; 
                  background-color: white; z-index:9999; font-size:14px;
-                 border:2px solid grey; padding: 10px;">
+                 border:2px solid grey; padding: 10px; opacity: 0.9;">
      <b> Leyenda del Mapa de Calor </b><br>
-     <i style="background: blue; width: 10px; height: 10px; display: inline-block;"></i> Baja Intensidad <br>
-     <i style="background: green; width: 10px; height: 10px; display: inline-block;"></i> Media Intensidad <br>
-     <i style="background: yellow; width: 10px; height: 10px; display: inline-block;"></i> Alta Intensidad <br>
-     <i style="background: red; width: 10px; height: 10px; display: inline-block;"></i> Muy Alta Intensidad <br>
+     <i style="background: blue; width: 15px; height: 15px; display: inline-block;"></i> Baja Intensidad <br>
+     <i style="background: green; width: 15px; height: 15px; display: inline-block;"></i> Media Intensidad <br>
+     <i style="background: yellow; width: 15px; height: 15px; display: inline-block;"></i> Alta Intensidad <br>
+     <i style="background: red; width: 15px; height: 15px; display: inline-block;"></i> Muy Alta Intensidad <br>
      </div>
      '''
     map_object.get_root().html.add_child(folium.Element(legend_html))
