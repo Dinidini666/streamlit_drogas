@@ -77,7 +77,7 @@ if page == "Mapa de Drogas":
         ["Cocaína (kg)", "Marihuana (kg)", "Base de Coca (kg)", "Sustancias Químicas Sólidas (kg)", "Sustancias Químicas Líquidas (L)"]
     )
     
-    m = folium.Map(location=[-10, -70], zoom_start=4, tiles='Esri Satellite', attr='Esri')
+    m = folium.Map(location=[-10, -70], zoom_start=4, tiles='https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr='Esri World Imagery', name='Esri Satellite')
 
     for _, row in df.iterrows():
         folium.CircleMarker(
@@ -100,7 +100,7 @@ if page == "Mapa de Drogas":
 
 # Mapa de Armas
 if page == "Mapa de Armas":
-    m = folium.Map(location=[-10, -70], zoom_start=4, tiles='Esri Satellite', attr='Esri')
+    m = folium.Map(location=[-10, -70], zoom_start=4, tiles='https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr='Esri World Imagery', name='Esri Satellite')
 
     for _, row in df.iterrows():
         folium.CircleMarker(
