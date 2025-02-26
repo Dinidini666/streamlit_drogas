@@ -64,10 +64,14 @@ elif page == "Mapa de Drogas":
     m = folium.Map(location=[-10, -70], zoom_start=4)
 
     for _, row in df.iterrows():
-        folium.Marker(
+        folium.CircleMarker(
             location=[row["Latitud"], row["Longitud"]],
+            radius=3
+            color='purple'
+            fill=True
+            fill_color='purple'
+            fill_opacity=0.6
             popup=f"Ubicación: {row['Ubicación']}<br>{variable}: {row[variable]}",
-            icon=folium.Icon(color="blue", icon="info-sign")
         ).add_to(m)
         
     heat_data = df[["Latitud", "Longitud", variable]].dropna().values.tolist()
@@ -81,10 +85,14 @@ elif page == "Mapa de Armas":
     m = folium.Map(location=[-10, -70], zoom_start=4)
 
     for _, row in df.iterrows():
-        folium.Marker(
+        folium.CircleMarker(
             location=[row["Latitud"], row["Longitud"]],
+            radius=3,
+            color="purple",
+            fill=True,
+            fill_color="purple",
+            fill_opacity=0.6,
             popup=f"Ubicación: {row['Ubicación']}<br>Armas Incautadas: {row['Armas Incautadas']}",
-            icon=folium.Icon(color="red", icon="info-sign")
         ).add_to(m)
         
     heat_data = df[["Latitud", "Longitud", "Armas Incautadas"]].dropna().values.tolist()
