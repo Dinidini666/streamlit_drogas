@@ -66,11 +66,11 @@ elif page == "Mapa de Drogas":
     for _, row in df.iterrows():
         folium.CircleMarker(
             location=[row["Latitud"], row["Longitud"]],
-            radius=0.8,
+            radius=1.2,
             color='purple',
             fill=True,
             fill_color='purple',
-            fill_opacity=0.4,
+            fill_opacity=0.2,
             popup=f"Ubicación: {row['Ubicación']}<br>{variable}: {row[variable]}",
         ).add_to(m)
         
@@ -87,11 +87,11 @@ elif page == "Mapa de Armas":
     for _, row in df.iterrows():
         folium.CircleMarker(
             location=[row["Latitud"], row["Longitud"]],
-            radius=0.8,
+            radius=1.2,
             color="purple",
             fill=True,
             fill_color="purple",
-            fill_opacity=0.4,
+            fill_opacity=0.2,
             popup=f"Ubicación: {row['Ubicación']}<br>Armas Incautadas: {row['Armas Incautadas']}",
         ).add_to(m)
         
