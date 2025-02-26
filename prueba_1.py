@@ -71,7 +71,7 @@ def add_legend(map_object):
     map_object.get_root().html.add_child(folium.Element(legend_html))
 
 # Mapa de Drogas
-elif page == "Mapa de Drogas":
+if page == "Mapa de Drogas":
     variable = st.sidebar.selectbox(
         "Seleccione la variable a visualizar:",
         ["Cocaína (kg)", "Marihuana (kg)", "Base de Coca (kg)", "Sustancias Químicas Sólidas (kg)", "Sustancias Químicas Líquidas (L)"]
@@ -99,7 +99,7 @@ elif page == "Mapa de Drogas":
     folium_static(m)
 
 # Mapa de Armas
-elif page == "Mapa de Armas":
+if page == "Mapa de Armas":
     m = folium.Map(location=[-10, -70], zoom_start=4)
 
     for _, row in df.iterrows():
