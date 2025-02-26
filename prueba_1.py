@@ -70,7 +70,7 @@ elif page == "Mapa de Drogas":
             color='purple',
             fill=True,
             fill_color='purple',
-            fill_opacity=0.2,
+            fill_opacity=0.08,
             popup=f"Ubicación: {row['Ubicación']}<br>{variable}: {row[variable]}",
         ).add_to(m)
         
@@ -91,7 +91,7 @@ elif page == "Mapa de Armas":
             color="purple",
             fill=True,
             fill_color="purple",
-            fill_opacity=0.2,
+            fill_opacity=0.08,
             popup=f"Ubicación: {row['Ubicación']}<br>Armas Incautadas: {row['Armas Incautadas']}",
         ).add_to(m)
         
