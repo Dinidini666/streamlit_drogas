@@ -20,7 +20,7 @@ Utilice los botones a continuación para navegar entre los mapas de calor.
 """)
 
 # Sidebar para navegación
-page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas"])
+page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas", 'Mapa de Homicidios'])
 
 # Cargar datos de homicidios
 @st.cache_data
@@ -32,7 +32,7 @@ df_homicidios = load_homicide_data()
 
 # Cargar los datos normalizados
 def load_data():
-    file_path = "Datos_Normalizados_v1.csv"  # Reemplazar con la ruta correcta
+    file_path = "Datos_Normalizados_v1.csv"  
     return pd.read_csv(file_path)
 
 df = load_data()
@@ -128,11 +128,12 @@ if page == "Mapa de Armas":
     
     st.markdown("### Mapa de Calor - Armas Incautadas")
     folium_static(m)
+    
 # Mapa de Homicidios
 if page == "Mapa de Homicidios":
     año_seleccionado = st.sidebar.selectbox("Seleccione el año", sorted(df["Año"].unique(), reverse=True))
 
-    df_filtrado = df[df["Año"] == año_seleccionado]
+    df_filtrado = df_homicidios[df_homicidios["Año"] == año_seleccionado]
 
     m = folium.Map(location=[-10, -70], zoom_start=4, tiles="cartodb positron")
 
