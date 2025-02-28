@@ -23,9 +23,9 @@ Utilice los botones a continuación para navegar entre los mapas de calor.
 page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas"])
 
 # Cargar datos de homicidios
-@st.cache
+@st.cache_data
 def load_homicide_data():
-    file_path = "homicidios_data.csv"  # Asegúrate de guardar el DataFrame en este archivo antes de correr la app
+    file_path = "homicidios_data.csv"  
     return pd.read_csv(file_path)
 
 df_homicidios = load_homicide_data()
