@@ -6,7 +6,7 @@ from streamlit_folium import folium_static
 from folium.plugins import HeatMap
 
 # Introducción y navegación
-st.title("Mapa de Calor: Drogas y Armas en la Comunidad Andina")
+st.title("Mapa de Calor: Tráfico Ilícito de Drogas y Armas en la Comunidad Andina")
 
 st.markdown("""
 ## Introducción
@@ -21,6 +21,14 @@ Utilice los botones a continuación para navegar entre los mapas de calor.
 
 # Sidebar para navegación
 page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas"])
+
+# Cargar datos de homicidios
+@st.cache
+def load_homicide_data():
+    file_path = "homicidios_data.csv"  # Asegúrate de guardar el DataFrame en este archivo antes de correr la app
+    return pd.read_csv(file_path)
+
+df_homicidios = load_homicide_data()
 
 # Cargar los datos normalizados
 def load_data():
@@ -120,4 +128,29 @@ if page == "Mapa de Armas":
     
     st.markdown("### Mapa de Calor - Armas Incautadas")
     folium_static(m)
+# Mapa de Homicidios
+if page == "Mapa de Homicidios":
+    año_seleccionado = st.sidebar.selectbox("Seleccione el año", sorted(df["Año"].unique(), reverse=True))
 
+    df_filtrado = df[df["Año"] == año_seleccionado]
+
+    m = folium.Map(location=[-10, -70], zoom_start=4, tiles="cartodb positron")
+
+    # Agregar puntos individuales
+    for _, row in df_filtrado.iterrows():
+        folium.CircleMarker(
+            location=[row["Latitud"], row["Longitud"]],
+            radius=5,
+            color="red",
+            fill=True,
+            fill_color="red",
+            fill_opacity=0.6,
+            popup=f"Departamento: {row['Departamento']}<br>Tasa de Homicidios: {row['Tasa de Homicidios']}",
+        ).add_to(m)
+
+    # Crear capa de calor
+    heat_data = df_filtrado[["Latitud", "Longitud", "Tasa de Homicidios"]].dropna().values.tolist()
+    HeatMap(heat_data, radius=15).add_to(m)
+
+    st.markdown(f"### Mapa de Calor - Tasa de Homicidios ({año_seleccionado})")
+    folium_static(m)
