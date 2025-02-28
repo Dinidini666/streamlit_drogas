@@ -141,7 +141,7 @@ if page == "Mapa de Homicidios":
     for _, row in df_filtrado.iterrows():
         folium.CircleMarker(
             location=[row["Latitud"], row["Longitud"]],
-            radius=5,
+            radius=1.5,
             color="red",
             fill=True,
             fill_color="red",
