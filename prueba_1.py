@@ -131,13 +131,17 @@ if page == "Mapa de Armas":
     
 # Mapa de Homicidios
 if page == "Mapa de Homicidios":
-    # Seleccionar el país
-    pais_seleccionado = st.sidebar.selectbox("Seleccione el país", sorted(df_homicidios["País"].unique()))
+    # Agregar opción "Todos los países"
+    paises_disponibles = ["Todos los países"] + sorted(df_homicidios["País"].unique())
+    pais_seleccionado = st.sidebar.selectbox("Seleccione el país", paises_disponibles)
 
-    # Filtrar por el país seleccionado
-    df_pais = df_homicidios[df_homicidios["País"] == pais_seleccionado]
+    # Filtrar por país (si no es "Todos los países")
+    if pais_seleccionado == "Todos los países":
+        df_pais = df_homicidios
+    else:
+        df_pais = df_homicidios[df_homicidios["País"] == pais_seleccionado]
 
-    # Seleccionar el año disponible dentro del país
+    # Seleccionar el año disponible dentro del país o todos los países
     año_seleccionado = st.sidebar.selectbox("Seleccione el año", sorted(df_pais["Año"].dropna().unique(), reverse=True))
 
     # Filtrar por el año seleccionado
@@ -154,7 +158,8 @@ if page == "Mapa de Homicidios":
             fill=True,
             fill_color="red",
             fill_opacity=0.6,
-            popup=f"<b>Departamento:</b> {row['Departamento']}<br>"
+            popup=f"<b>País:</b> {row['País']}<br>"
+                  f"<b>Departamento:</b> {row['Departamento']}<br>"
                   f"<b>Tasa de Homicidios:</b> {row['Tasa de Homicidios']} por 100,000 habitantes",
         ).add_to(m)
 
