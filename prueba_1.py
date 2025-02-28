@@ -133,7 +133,7 @@ if page == "Mapa de Armas":
 if page == "Mapa de Homicidios":
     año_seleccionado = st.sidebar.selectbox("Seleccione el año", sorted(df["Año"].unique(), reverse=True))
 
-    df_filtrado = df_homicidios[df_homicidios["Año"] == año_seleccionado]
+    df_filtrado = df_homicidios[df_homicidios["Año"] == año_seleccionado].dropna(subset=["Latitud", "Longitud"])
 
     m = folium.Map(location=[-10, -70], zoom_start=4, tiles="cartodb positron")
 
