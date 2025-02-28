@@ -131,13 +131,21 @@ if page == "Mapa de Armas":
     
 # Mapa de Homicidios
 if page == "Mapa de Homicidios":
-    año_seleccionado = st.sidebar.selectbox("Seleccione el año", sorted(df["Año"].unique(), reverse=True))
+    # Seleccionar el país
+    pais_seleccionado = st.sidebar.selectbox("Seleccione el país", sorted(df_homicidios["País"].unique()))
 
-    df_filtrado = df_homicidios[df_homicidios["Año"] == año_seleccionado].dropna(subset=["Latitud", "Longitud"])
+    # Filtrar por el país seleccionado
+    df_pais = df_homicidios[df_homicidios["País"] == pais_seleccionado]
+
+    # Seleccionar el año disponible dentro del país
+    año_seleccionado = st.sidebar.selectbox("Seleccione el año", sorted(df_pais["Año"].dropna().unique(), reverse=True))
+
+    # Filtrar por el año seleccionado
+    df_filtrado = df_pais[df_pais["Año"] == año_seleccionado].dropna(subset=["Latitud", "Longitud"])
 
     m = folium.Map(location=[-10, -70], zoom_start=4, tiles="cartodb positron")
 
-    # Agregar puntos individuales
+    # Agregar puntos individuales (solo los que tienen coordenadas válidas)
     for _, row in df_filtrado.iterrows():
         folium.CircleMarker(
             location=[row["Latitud"], row["Longitud"]],
@@ -146,12 +154,14 @@ if page == "Mapa de Homicidios":
             fill=True,
             fill_color="red",
             fill_opacity=0.6,
-            popup=f"Departamento: {row['Departamento']}<br>Tasa de Homicidios: {row['Tasa de Homicidios']}",
+            popup=f"<b>Departamento:</b> {row['Departamento']}<br>"
+                  f"<b>Tasa de Homicidios:</b> {row['Tasa de Homicidios']} por 100,000 habitantes",
         ).add_to(m)
 
     # Crear capa de calor
     heat_data = df_filtrado[["Latitud", "Longitud", "Tasa de Homicidios"]].dropna().values.tolist()
     HeatMap(heat_data, radius=15).add_to(m)
 
-    st.markdown(f"### Mapa de Calor - Tasa de Homicidios ({año_seleccionado})")
+    st.markdown(f"### Mapa de Calor - Tasa de Homicidios ({año_seleccionado}, {pais_seleccionado})")
+    st.markdown("Tasa de homicidios por cada 100,000 habitantes.")
     folium_static(m)
