@@ -1,0 +1,175 @@
+Departamento,Año,Tasa de Homicidios,País,Latitud,Longitud
+Amazonas,2019.0,7.8,Perú,-1.132,-71.903
+Áncash,2019.0,5.6,Perú,-9.528,-77.528
+Apurímac,2019.0,9.5,Perú,-14.045,-73.924
+Arequipa,2019.0,7.4,Perú,-16.409,-71.537
+Ayacucho,2019.0,4.1,Perú,-13.158,-74.223
+Cajamarca,2019.0,4.8,Perú,-7.161,-78.512
+Cuzco,2019.0,8.1,Perú,,
+Huancavelica,2019.0,5.9,Perú,-12.786,-74.975
+Huánuco,2019.0,6.3,Perú,-9.93,-76.242
+Ica,2019.0,7.4,Perú,-14.067,-75.728
+Junín,2019.0,10.1,Perú,-11.159,-75.993
+La Libertad,2019.0,7.5,Perú,-8.082,-79.01
+Lambayeque,2019.0,4.4,Perú,-6.701,-79.906
+Loreto,2019.0,3.1,Perú,-3.749,-73.253
+Madre de Dios,2019.0,19.7,Perú,-12.593,-69.181
+Moquegua,2019.0,9.0,Perú,-17.195,-70.935
+Pasco,2019.0,8.8,Perú,-10.682,-76.259
+Piura,2019.0,6.8,Perú,-5.194,-80.632
+Prov. Const. Callao,2019.0,15.6,Perú,,
+Prov. Lima Metrop.,2019.0,7.1,Perú,,
+Puno,2019.0,8.6,Perú,-15.84,-70.021
+Región de Lima,2019.0,9.9,Perú,,
+San Martín,2019.0,4.7,Perú,-6.512,-76.365
+Tacna,2019.0,6.3,Perú,-18.006,-70.246
+Tumbes,2019.0,13.4,Perú,-3.566,-80.451
+Ucayali,2019.0,11.0,Perú,-8.379,-74.553
+Amazonas,2020.0,6.3,Perú,-1.132,-71.903
+Áncash,2020.0,3.9,Perú,-9.528,-77.528
+Apurímac,2020.0,6.3,Perú,-14.045,-73.924
+Arequipa,2020.0,5.7,Perú,-16.409,-71.537
+Ayacucho,2020.0,5.5,Perú,-13.158,-74.223
+Cajamarca,2020.0,4.3,Perú,-7.161,-78.512
+Cuzco,2020.0,6.4,Perú,,
+Huancavelica,2020.0,5.5,Perú,-12.786,-74.975
+Huánuco,2020.0,7.2,Perú,-9.93,-76.242
+Ica,2020.0,6.6,Perú,-14.067,-75.728
+Junín,2020.0,7.8,Perú,-11.159,-75.993
+La Libertad,2020.0,4.7,Perú,-8.082,-79.01
+Lambayeque,2020.0,4.7,Perú,-6.701,-79.906
+Loreto,2020.0,2.5,Perú,-3.749,-73.253
+Madre de Dios,2020.0,13.8,Perú,-12.593,-69.181
+Moquegua,2020.0,6.2,Perú,-17.195,-70.935
+Pasco,2020.0,7.7,Perú,-10.682,-76.259
+Piura,2020.0,4.6,Perú,-5.194,-80.632
+Prov. Const. Callao,2020.0,12.0,Perú,,
+Prov. Lima Metrop.,2020.0,5.6,Perú,,
+Puno,2020.0,5.7,Perú,-15.84,-70.021
+Región de Lima,2020.0,8.1,Perú,,
+San Martín,2020.0,3.9,Perú,-6.512,-76.365
+Tacna,2020.0,5.4,Perú,-18.006,-70.246
+Tumbes,2020.0,10.7,Perú,-3.566,-80.451
+Ucayali,2020.0,7.0,Perú,-8.379,-74.553
+Amazonas,2021.0,6.1,Perú,-1.132,-71.903
+Áncash,2021.0,6.9,Perú,-9.528,-77.528
+Apurímac,2021.0,9.5,Perú,-14.045,-73.924
+Arequipa,2021.0,7.8,Perú,-16.409,-71.537
+Ayacucho,2021.0,6.9,Perú,-13.158,-74.223
+Cajamarca,2021.0,4.3,Perú,-7.161,-78.512
+Cuzco,2021.0,6.5,Perú,,
+Huancavelica,2021.0,7.5,Perú,-12.786,-74.975
+Huánuco,2021.0,5.7,Perú,-9.93,-76.242
+Ica,2021.0,6.8,Perú,-14.067,-75.728
+Junín,2021.0,11.2,Perú,-11.159,-75.993
+La Libertad,2021.0,10.1,Perú,-8.082,-79.01
+Lambayeque,2021.0,4.5,Perú,-6.701,-79.906
+Loreto,2021.0,2.5,Perú,-3.749,-73.253
+Madre de Dios,2021.0,27.3,Perú,-12.593,-69.181
+Moquegua,2021.0,6.7,Perú,-17.195,-70.935
+Pasco,2021.0,13.3,Perú,-10.682,-76.259
+Piura,2021.0,5.8,Perú,-5.194,-80.632
+Prov. Const. Callao,2021.0,25.5,Perú,,
+Prov. Lima Metrop.,2021.0,9.4,Perú,,
+Puno,2021.0,8.8,Perú,-15.84,-70.021
+Región de Lima,2021.0,9.0,Perú,,
+San Martín,2021.0,4.9,Perú,-6.512,-76.365
+Tacna,2021.0,6.4,Perú,-18.006,-70.246
+Tumbes,2021.0,16.0,Perú,-3.566,-80.451
+Ucayali,2021.0,9.5,Perú,-8.379,-74.553
+Guayas,2019.0,9.53,Ecuador,-2.17,-79.922
+Pichincha,2019.0,5.06,Ecuador,-0.18,-78.467
+Manabí,2019.0,7.53,Ecuador,-0.957,-80.712
+Los Ríos,2019.0,13.88,Ecuador,-1.497,-79.527
+El Oro,2019.0,8.5,Ecuador,-3.259,-79.957
+Esmeraldas,2019.0,12.8,Ecuador,0.968,-79.651
+Santo Domingo,2019.0,6.8,Ecuador,-0.254,-79.175
+Sucumbíos,2019.0,5.9,Ecuador,0.088,-76.889
+Cañar,2019.0,4.2,Ecuador,-2.554,-78.93
+Santa Elena,2019.0,6.1,Ecuador,-2.225,-80.859
+Guayas,2022.0,31.44,Ecuador,-2.17,-79.922
+Pichincha,2022.0,,Ecuador,-0.18,-78.467
+Manabí,2022.0,,Ecuador,-0.957,-80.712
+Los Ríos,2022.0,,Ecuador,-1.497,-79.527
+El Oro,2022.0,,Ecuador,-3.259,-79.957
+Esmeraldas,2022.0,,Ecuador,0.968,-79.651
+Santo Domingo,2022.0,,Ecuador,-0.254,-79.175
+Sucumbíos,2022.0,,Ecuador,0.088,-76.889
+Cañar,2022.0,,Ecuador,-2.554,-78.93
+Santa Elena,2022.0,,Ecuador,-2.225,-80.859
+Guayas,2023.0,44.5,Ecuador,-2.17,-79.922
+Pichincha,2023.0,8.9,Ecuador,-0.18,-78.467
+Manabí,2023.0,36.51,Ecuador,-0.957,-80.712
+Los Ríos,2023.0,32.33,Ecuador,-1.497,-79.527
+El Oro,2023.0,30.44,Ecuador,-3.259,-79.957
+Esmeraldas,2023.0,63.33,Ecuador,0.968,-79.651
+Santo Domingo,2023.0,26.15,Ecuador,-0.254,-79.175
+Sucumbíos,2023.0,28.68,Ecuador,0.088,-76.889
+Cañar,2023.0,26.79,Ecuador,-2.554,-78.93
+Santa Elena,2023.0,17.68,Ecuador,-2.225,-80.859
+Amazonas,2023.0,24.5,Colombia,-1.132,-71.903
+Arauca,2023.0,47.85,Colombia,7.085,-70.759
+Bolívar,2023.0,30.29,Colombia,9.242,-75.152
+Boyacá,2023.0,7.1,Colombia,5.535,-73.367
+Cauca,2023.0,54.75,Colombia,2.441,-76.614
+Córdoba,2023.0,15.74,Colombia,8.747,-75.881
+Cundinamarca,2023.0,11.97,Colombia,5.026,-74.03
+Magdalena,2023.0,34.44,Colombia,10.365,-74.245
+Santander,2023.0,16.91,Colombia,7.125,-73.119
+Caquetá,2023.0,27.34,Colombia,1.482,-75.645
+Antioquia,2023.0,24.54,Colombia,6.244,-75.581
+La Guarija,2023.0,16.04,Colombia,,
+Atlántico,2023.0,40.93,Colombia,10.696,-74.874
+Guainía,2023.0,3.8,Colombia,2.567,-68.381
+Guaviare,2023.0,44.1,Colombia,2.571,-72.644
+Bogotá,2023.0,13.34,Colombia,4.609,-74.082
+Caldas,2023.0,15.81,Colombia,5.297,-75.565
+Casanare,2023.0,14.56,Colombia,5.758,-71.572
+Cesar,2023.0,27.27,Colombia,9.337,-73.649
+Chocó,2023.0,35.26,Colombia,5.695,-76.661
+Huila,2023.0,31.57,Colombia,2.927,-75.286
+Meta,2023.0,24.64,Colombia,4.142,-73.626
+Nariño,2023.0,26.13,Colombia,1.214,-77.281
+Norte de Santander,2023.0,32.21,Colombia,7.916,-72.505
+Putumayo,2023.0,61.38,Colombia,0.435,-75.527
+Quindío,2023.0,29.79,Colombia,4.484,-75.746
+Risaralda,2023.0,24.9,Colombia,5.297,-75.953
+San Andrés y Providencia,2023.0,52.69,Colombia,12.556,-81.718
+Sucre,2023.0,26.64,Colombia,9.315,-75.285
+Tolima,2023.0,26.72,Colombia,4.431,-75.226
+Valle del Cauca,2023.0,49.79,Colombia,3.451,-76.531
+Vaupés,2023.0,1.9,Colombia,0.855,-70.811
+Vichada,2023.0,12.53,Colombia,4.923,-69.791
+Amazonas,2024.0,24.5,Colombia,-1.132,-71.903
+Arauca,2024.0,57.2,Colombia,7.085,-70.759
+Bolívar,2024.0,30.6,Colombia,9.242,-75.152
+Boyacá,2024.0,8.2,Colombia,5.535,-73.367
+Cauca,2024.0,51.7,Colombia,2.441,-76.614
+Córdoba,2024.0,13.4,Colombia,8.747,-75.881
+Cundinamarca,2024.0,11.0,Colombia,5.026,-74.03
+Magdalena,2024.0,37.1,Colombia,10.365,-74.245
+Santander,2024.0,20.8,Colombia,7.125,-73.119
+Caquetá,2024.0,22.4,Colombia,1.482,-75.645
+Antioquia,2024.0,23.2,Colombia,6.244,-75.581
+La Guarija,2024.0,21.1,Colombia,,
+Atlántico,2024.0,32.2,Colombia,10.696,-74.874
+Guainía,2024.0,3.8,Colombia,2.567,-68.381
+Guaviare,2024.0,32.9,Colombia,2.571,-72.644
+Bogotá,2024.0,15.0,Colombia,4.609,-74.082
+Caldas,2024.0,13.6,Colombia,5.297,-75.565
+Casanare,2024.0,16.1,Colombia,5.758,-71.572
+Cesar,2024.0,26.7,Colombia,9.337,-73.649
+Chocó,2024.0,44.5,Colombia,5.695,-76.661
+Huila,2024.0,33.2,Colombia,2.927,-75.286
+Meta,2024.0,22.5,Colombia,4.142,-73.626
+Nariño,2024.0,21.7,Colombia,1.214,-77.281
+Norte de Santander,2024.0,31.0,Colombia,7.916,-72.505
+Putumayo,2024.0,48.3,Colombia,0.435,-75.527
+Quindío,2024.0,26.5,Colombia,4.484,-75.746
+Risaralda,2024.0,26.6,Colombia,5.297,-75.953
+San Andrés y Providencia,2024.0,37.9,Colombia,12.556,-81.718
+Sucre,2024.0,18.1,Colombia,9.315,-75.285
+Tolima,2024.0,21.9,Colombia,4.431,-75.226
+Valle del Cauca,2024.0,48.8,Colombia,3.451,-76.531
+Vaupés,2024.0,1.9,Colombia,0.855,-70.811
+Vichada,2024.0,9.3,Colombia,4.923,-69.791
