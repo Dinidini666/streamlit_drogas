@@ -4,6 +4,7 @@ import geopandas as gpd
 import folium
 from streamlit_folium import folium_static
 from folium.plugins import HeatMap
+import plotly.express as px
 
 # Introducción y navegación
 st.title("Mapa de Calor: Tráfico Ilícito de Drogas y Armas en la Comunidad Andina")
@@ -61,6 +62,37 @@ if page == "Información General":
     
     df_info = pd.DataFrame(data)
     st.dataframe(df_info)
+
+# Línea de Tiempo: Tráfico Ilícito vs Homicidios
+if page == "Línea de Tiempo Tráfico vs Homicidios":
+    # Convertir fechas a datetime
+    if "Fecha" in df.columns:
+        df["Fecha"] = pd.to_datetime(df["Fecha"])
+    if "Fecha" in df_homicidios.columns:
+        df_homicidios["Fecha"] = pd.to_datetime(df_homicidios["Fecha"])
+
+    # Agrupar por mes/año para facilitar la comparación
+    df["Mes_Año"] = df["Fecha"].dt.to_period("M")
+    df_homicidios["Mes_Año"] = df_homicidios["Fecha"].dt.to_period("M")
+
+    grouped_trafico = df.groupby("Mes_Año").sum().reset_index()
+    grouped_homicidios = df_homicidios.groupby("Mes_Año").sum().reset_index()
+
+    # Fusionar ambas bases en una línea de tiempo unificada
+    df_combined = pd.merge(grouped_trafico, grouped_homicidios, on="Mes_Año", how="outer")
+
+    # Crear gráficos de línea
+    fig = px.line(
+        df_combined, 
+        x="Mes_Año", 
+        y=["Incautaciones Totales", "Homicidios Totales"], 
+        title="Línea de Tiempo: Tráfico Ilícito vs Homicidios",
+        labels={"Mes_Año": "Fecha", "value": "Cantidad"},
+    )
+
+    # Mostrar en Streamlit
+    st.markdown("## Línea de Tiempo de Tráfico Ilícito y Homicidios")
+    st.plotly_chart(fig)
 
 # Función para agregar leyenda
 def add_legend(map_object):
