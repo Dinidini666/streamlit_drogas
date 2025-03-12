@@ -68,7 +68,7 @@ if page == "Información General":
 # Línea de Tiempo: Tráfico Ilícito vs Homicidios
 if page == "Línea de Tiempo Tráfico vs Homicidios":
     # Convertir el año a tipo int para evitar problemas
-    df_trafico["Año"] = df["Año"].astype(int)
+    df["Año"] = df["Año"].astype(int)
     df_homicidios["Año"] = df_homicidios["Año"].astype(int)
 
     # Agrupar por año
