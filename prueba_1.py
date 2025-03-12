@@ -72,7 +72,7 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
     df_homicidios["Año"] = df_homicidios["Año"].astype(int)
 
     # Agrupar por año
-    grouped_trafico = df_trafico.groupby("Año")["TOTAL_DROGAS_KG."].sum().reset_index()
+    grouped_trafico = df.groupby("Año")["TOTAL_DROGAS_KG."].sum().reset_index()
     grouped_homicidios = df_homicidios.groupby("Año")["Tasa de Homicidios"].sum().reset_index()
 
     # Fusionar las bases en una línea de tiempo
