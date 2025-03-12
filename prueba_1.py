@@ -4,6 +4,8 @@ import geopandas as gpd
 import folium
 from streamlit_folium import folium_static
 from folium.plugins import HeatMap
+import os
+os.system("pip install plotly")
 import plotly.express as px
 
 # Introducción y navegación
