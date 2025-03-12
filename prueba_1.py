@@ -67,33 +67,42 @@ if page == "Información General":
 
 # Línea de Tiempo: Tráfico Ilícito vs Homicidios
 if page == "Línea de Tiempo Tráfico vs Homicidios":
-    # Convertir el año a tipo int para evitar problemas
-    df["Año"] = df["Año"].astype(int)
-    df_homicidios["Año"] = df_homicidios["Año"].astype(int)
 
-    # Agrupar por año
-    grouped_trafico = df.groupby("Año")["TOTAL_DROGAS_KG."].sum().reset_index()
-    grouped_homicidios = df_homicidios.groupby("Año")["Tasa de Homicidios"].sum().reset_index()
-
-    # Fusionar las bases en una línea de tiempo
-    df_combined = pd.merge(grouped_trafico, grouped_homicidios, on="Año", how="outer")
-
-    # Verificar que haya datos correctos
-    st.write("Primeras filas de df_combined:", df_combined.head())
-
-    # Crear gráfico de línea
-    fig = px.line(
-        df_combined,
-        x="Año",
-        y=["TOTAL_DROGAS_KG.", "Tasa de Homicidios"],
-        title="Línea de Tiempo: Tráfico Ilícito vs Homicidios",
-        labels={"Año": "Año", "value": "Cantidad"},
-    )
-
-    # Mostrar en Streamlit
-    st.markdown("## Línea de Tiempo de Tráfico Ilícito y Homicidios")
+    # Cargar los archivos CSV
+    file1_path = "homicidios_data.csv"
+    file2_path = "Datos_Normalizados_v1.csv"
+    
+    df1 = pd.read_csv(file1_path)
+    df2 = pd.read_csv(file2_path)
+    
+    # Unificar el formato de año (por si acaso hay errores de tipo)
+    df1["Año"] = df1["Año"].astype(int)
+    df2["Año"] = df2["Año"].astype(int)
+    
+    # Agrupar los homicidios por año y país
+    tasa_homicidios = df1.groupby(["País", "Año"])["Tasa de Homicidios"].mean().reset_index()
+    
+    # Agrupar la cantidad de drogas incautadas por año y país
+    columnas_drogas = ["Cocaína (kg)", "Marihuana (kg)", "Sustancias Químicas Sólidas (kg)", "Sustancias Químicas Líquidas (L)"]
+    drogas_incautadas = df2.groupby(["País", "Año"])[columnas_drogas].sum().reset_index()
+    
+    # Unir ambas bases de datos en una sola para facilitar la visualización
+    df_merged = pd.merge(tasa_homicidios, drogas_incautadas, on=["País", "Año"], how="outer")
+    
+    # Aplicación en Streamlit
+    st.title("Línea de Tiempo de Homicidios y Drogas Incautadas")
+    
+    # Selección de país
+    paises = df_merged["País"].unique()
+    pais_seleccionado = st.selectbox("Selecciona un país", paises)
+    
+    df_filtrado = df_merged[df_merged["País"] == pais_seleccionado]
+    
+    # Crear gráfico interactivo
+    fig = px.line(df_filtrado, x="Año", y=["Tasa de Homicidios", "Cocaína (kg)", "Marihuana (kg)", "Sustancias Químicas Sólidas (kg)", "Sustancias Químicas Líquidas (L)"], markers=True, title=f"Evolución de Indicadores en {pais_seleccionado}")
+    
     st.plotly_chart(fig)
-
+    
 # Función para agregar leyenda
 def add_legend(map_object):
     legend_html = '''
