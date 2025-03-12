@@ -23,7 +23,7 @@ Utilice los botones a continuación para navegar entre los mapas de calor.
 """)
 
 # Sidebar para navegación
-page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas", 'Mapa de Homicidios'])
+page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas", 'Mapa de Homicidios', "Línea de Tiempo Tráfico vs Homicidios"])
 
 # Cargar datos de homicidios
 @st.cache_data
@@ -82,6 +82,15 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
 
     # Fusionar ambas bases en una línea de tiempo unificada
     df_combined = pd.merge(grouped_trafico, grouped_homicidios, on="Mes_Año", how="outer")
+
+    # Verificar las columnas
+    st.write("Columnas en df_combined:", df_combined.columns)
+
+    # Convertir Mes_Año a string para evitar problemas en el gráfico
+    df_combined["Mes_Año"] = df_combined["Mes_Año"].astype(str)
+
+    # Verificar que hay datos
+    st.write("Primeras filas de df_combined:", df_combined.head())
 
     # Crear gráficos de línea
     fig = px.line(
