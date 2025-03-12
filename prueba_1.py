@@ -67,38 +67,27 @@ if page == "Información General":
 
 # Línea de Tiempo: Tráfico Ilícito vs Homicidios
 if page == "Línea de Tiempo Tráfico vs Homicidios":
-    # Convertir fechas a datetime
-    if "Fecha" in df.columns:
-        df["Fecha"] = pd.to_datetime(df["Fecha"])
-    if "Fecha" in df_homicidios.columns:
-        df_homicidios["Fecha"] = pd.to_datetime(df_homicidios["Fecha"])
+    # Convertir el año a tipo int para evitar problemas
+    df_trafico["Año"] = df_trafico["Año"].astype(int)
+    df_homicidios["Año"] = df_homicidios["Año"].astype(int)
 
-    # Agrupar por mes/año para facilitar la comparación
-    df["Mes_Año"] = df["Fecha"].dt.to_period("M")
-    df_homicidios["Mes_Año"] = df_homicidios["Fecha"].dt.to_period("M")
+    # Agrupar por año
+    grouped_trafico = df_trafico.groupby("Año")["TOTAL_DROGAS_KG."].sum().reset_index()
+    grouped_homicidios = df_homicidios.groupby("Año")["Tasa de Homicidios"].sum().reset_index()
 
-    grouped_trafico = df.groupby("Mes_Año").sum().reset_index()
-    grouped_homicidios = df_homicidios.groupby("Mes_Año").sum().reset_index()
+    # Fusionar las bases en una línea de tiempo
+    df_combined = pd.merge(grouped_trafico, grouped_homicidios, on="Año", how="outer")
 
-    # Fusionar ambas bases en una línea de tiempo unificada
-    df_combined = pd.merge(grouped_trafico, grouped_homicidios, on="Mes_Año", how="outer")
-
-    # Verificar las columnas
-    st.write("Columnas en df_combined:", df_combined.columns)
-
-    # Convertir Mes_Año a string para evitar problemas en el gráfico
-    df_combined["Mes_Año"] = df_combined["Mes_Año"].astype(str)
-
-    # Verificar que hay datos
+    # Verificar que haya datos correctos
     st.write("Primeras filas de df_combined:", df_combined.head())
 
-    # Crear gráficos de línea
+    # Crear gráfico de línea
     fig = px.line(
-        df_combined, 
-        x="Mes_Año", 
-        y=["Incautaciones Totales", "Homicidios Totales"], 
+        df_combined,
+        x="Año",
+        y=["TOTAL_DROGAS_KG.", "Tasa de Homicidios"],
         title="Línea de Tiempo: Tráfico Ilícito vs Homicidios",
-        labels={"Mes_Año": "Fecha", "value": "Cantidad"},
+        labels={"Año": "Año", "value": "Cantidad"},
     )
 
     # Mostrar en Streamlit
