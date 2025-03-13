@@ -72,9 +72,13 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
     df.fillna(0, inplace=True)
     df_homicidios.fillna(0, inplace=True)
     
-    # Convertir la columna 'Año' a tipo datetime
-    df['Año'] = pd.to_datetime(df['Año'], format='%Y')
-    df_homicidios['Año'] = pd.to_datetime(df_homicidios['Año'], format='%Y')
+    # Normalizar nombres de países (Perú vs Peru)
+    df['País'] = df['País'].replace({'Peru': 'Perú'})
+    df_homicidios['País'] = df_homicidios['País'].replace({'Peru': 'Perú'})
+    
+    # Convertir la columna 'Año' a tipo datetime y extraer solo el año
+    df['Año'] = pd.to_datetime(df['Año'], format='%Y').dt.year
+    df_homicidios['Año'] = pd.to_datetime(df_homicidios['Año'], format='%Y').dt.year
     
     # Obtener la lista de países disponibles
     paises_disponibles = df['País'].unique()
@@ -93,10 +97,42 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
     # Combinar los datos de incautaciones y homicidios
     df_combined = pd.merge(df_pais_grouped, df_homicidios_pais_grouped, on='Año', how='outer')
     
-    # Crear el gráfico de líneas
-    fig = px.line(df_combined, x='Año', y=['Cocaína (kg)', 'Marihuana (kg)', 'Tasa de Homicidios'],
-                  title=f'Comparación de Incautaciones y Tasa de Homicidios en {pais_seleccionado}',
-                  labels={'value': 'Cantidad', 'variable': 'Tipo de Incautación/Homicidios'})
+    # Crear el gráfico con dos ejes Y
+    fig = go.Figure()
+    
+    # Añadir la línea de Cocaína (kg)
+    fig.add_trace(go.Scatter(
+        x=df_combined['Año'], 
+        y=df_combined['Cocaína (kg)'],
+        name='Cocaína (kg)',
+        line=dict(color='blue')
+    ))
+    
+    # Añadir la línea de Marihuana (kg)
+    fig.add_trace(go.Scatter(
+        x=df_combined['Año'], 
+        y=df_combined['Marihuana (kg)'],
+        name='Marihuana (kg)',
+        line=dict(color='green')
+    ))
+    
+    # Añadir la línea de Tasa de Homicidios (eje Y secundario)
+    fig.add_trace(go.Scatter(
+        x=df_combined['Año'], 
+        y=df_combined['Tasa de Homicidios'],
+        name='Tasa de Homicidios',
+        line=dict(color='red'),
+        yaxis='y2'
+    ))
+    
+    # Configurar el layout del gráfico
+    fig.update_layout(
+        title=f'Comparación de Incautaciones y Tasa de Homicidios en {pais_seleccionado}',
+        xaxis=dict(title='Año'),
+        yaxis=dict(title='Incautaciones (kg)', titlefont=dict(color='blue')),
+        yaxis2=dict(title='Tasa de Homicidios (por 100,000 hab.)', titlefont=dict(color='red'), overlaying='y', side='right'),
+        legend=dict(x=0.1, y=1.1)
+    )
     
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig)
