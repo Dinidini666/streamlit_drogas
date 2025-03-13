@@ -4,9 +4,8 @@ import geopandas as gpd
 import folium
 from streamlit_folium import folium_static
 from folium.plugins import HeatMap
-import os
-os.system("pip install plotly")
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Introducción y navegación
 st.title("Mapa de Calor: Tráfico Ilícito de Drogas y Armas en la Comunidad Andina")
