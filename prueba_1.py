@@ -75,6 +75,9 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
     df['País'] = df['País'].replace({'Peru': 'Perú'})
     df_homicidios['País'] = df_homicidios['País'].replace({'Peru': 'Perú'})
     
+    # Renombrar la columna 'Departamento' a 'Ubicación' en df_homicidios
+    df_homicidios.rename(columns={'Departamento': 'Ubicación'}, inplace=True)
+    
     # Convertir la columna 'Año' a tipo int
     df['Año'] = df['Año'].astype(int)
     df_homicidios['Año'] = df_homicidios['Año'].astype(int)
@@ -90,7 +93,7 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
         value=min(años_disponibles)
     )
     
-   # Obtener la lista de países disponibles
+    # Obtener la lista de países disponibles
     paises_disponibles = df['País'].unique()
     
     # Crear un select box para seleccionar el país
