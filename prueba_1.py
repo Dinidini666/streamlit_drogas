@@ -90,31 +90,39 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
         value=min(años_disponibles)
     )
     
-    # Filtrar datos por el año seleccionado
-    df_año = df[df['Año'] == año_seleccionado]
-    df_homicidios_año = df_homicidios[df_homicidios['Año'] == año_seleccionado]
+   # Obtener la lista de países disponibles
+    paises_disponibles = df['País'].unique()
     
-    # Combinar los datos de incautaciones y homicidios para el año seleccionado
-    df_combined = pd.merge(df_año, df_homicidios_año, on=['País', 'Año'], how='outer')
+    # Crear un select box para seleccionar el país
+    pais_seleccionado = st.selectbox("Seleccione un país", paises_disponibles)
+    
+    # Filtrar datos por el año y país seleccionado
+    df_año_pais = df[(df['Año'] == año_seleccionado) & (df['País'] == pais_seleccionado)]
+    df_homicidios_año_pais = df_homicidios[(df_homicidios['Año'] == año_seleccionado) & (df_homicidios['País'] == pais_seleccionado)]
+    
+    # Combinar los datos de incautaciones y homicidios para el año y país seleccionado
+    df_combined = pd.merge(df_año_pais, df_homicidios_año_pais, on=['País', 'Año', 'Ubicación'], how='outer')
     
     # Mostrar los datos en una tabla
-    st.write(f"Datos para el año {año_seleccionado}:")
+    st.write(f"Datos para el año {año_seleccionado} en {pais_seleccionado}:")
     st.dataframe(df_combined)
     
-    # Crear un gráfico de barras para las incautaciones de drogas por país
-    st.write(f"Incautaciones de drogas por país en el año {año_seleccionado}:")
+    # Crear un gráfico de barras para las incautaciones de drogas por región/departamento
+    st.write(f"Incautaciones de drogas por región/departamento en {pais_seleccionado} ({año_seleccionado}):")
     fig, ax = plt.subplots(figsize=(10, 6))
-    df_combined.set_index('País')[['Cocaína (kg)', 'Marihuana (kg)']].plot(kind='bar', ax=ax)
+    df_combined.set_index('Ubicación')[['Cocaína (kg)', 'Marihuana (kg)']].plot(kind='bar', ax=ax)
     ax.set_ylabel('Cantidad (kg)')
-    ax.set_title(f'Incautaciones de drogas por país en {año_seleccionado}')
+    ax.set_title(f'Incautaciones de drogas por región/departamento en {pais_seleccionado} ({año_seleccionado})')
+    plt.xticks(rotation=45, ha='right')  # Rotar los nombres de las regiones para mejor legibilidad
     st.pyplot(fig)
     
-    # Crear un gráfico de barras para la tasa de homicidios por país
-    st.write(f"Tasa de homicidios por país en el año {año_seleccionado}:")
+    # Crear un gráfico de barras para la tasa de homicidios por región/departamento
+    st.write(f"Tasa de homicidios por región/departamento en {pais_seleccionado} ({año_seleccionado}):")
     fig, ax = plt.subplots(figsize=(10, 6))
-    df_combined.set_index('País')['Tasa de Homicidios'].plot(kind='bar', color='red', ax=ax)
+    df_combined.set_index('Ubicación')['Tasa de Homicidios'].plot(kind='bar', color='red', ax=ax)
     ax.set_ylabel('Tasa de homicidios (por 100,000 hab.)')
-    ax.set_title(f'Tasa de homicidios por país en {año_seleccionado}')
+    ax.set_title(f'Tasa de homicidios por región/departamento en {pais_seleccionado} ({año_seleccionado})')
+    plt.xticks(rotation=45, ha='right')  # Rotar los nombres de las regiones para mejor legibilidad
     st.pyplot(fig)
 
 # Gráfico de línea
