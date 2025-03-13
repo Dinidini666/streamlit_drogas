@@ -4,8 +4,8 @@ import geopandas as gpd
 import folium
 from streamlit_folium import folium_static
 from folium.plugins import HeatMap
-import plotly.express as px
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Introducción y navegación
 st.title("Mapa de Calor: Tráfico Ilícito de Drogas y Armas en la Comunidad Andina")
@@ -74,7 +74,7 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
     # Normalizar nombres de países (Perú vs Peru)
     df['País'] = df['País'].replace({'Peru': 'Perú'})
     df_homicidios['País'] = df_homicidios['País'].replace({'Peru': 'Perú'})
-
+    
     # Convertir la columna 'Año' a tipo int
     df['Año'] = df['Año'].astype(int)
     df_homicidios['Año'] = df_homicidios['Año'].astype(int)
@@ -97,44 +97,34 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
     df_combined = pd.merge(df_pais_grouped, df_homicidios_pais_grouped, on='Año', how='outer')
     
     # Crear el gráfico con dos ejes Y
-    fig = go.Figure()
+    fig, ax1 = plt.subplots(figsize=(10, 6))
     
-    # Añadir la línea de Cocaína (kg)
-    fig.add_trace(go.Scatter(
-        x=df_combined['Año'], 
-        y=df_combined['Cocaína (kg)'],
-        name='Cocaína (kg)',
-        line=dict(color='blue')
-    ))
+    # Gráfico de incautaciones de drogas (eje Y izquierdo)
+    color = 'tab:blue'
+    ax1.set_xlabel('Año')
+    ax1.set_ylabel('Incautaciones (kg)', color=color)
+    ax1.plot(df_combined['Año'], df_combined['Cocaína (kg)'], color=color, label='Cocaína (kg)')
+    ax1.plot(df_combined['Año'], df_combined['Marihuana (kg)'], color='tab:green', label='Marihuana (kg)')
+    ax1.tick_params(axis='y', labelcolor=color)
     
-    # Añadir la línea de Marihuana (kg)
-    fig.add_trace(go.Scatter(
-        x=df_combined['Año'], 
-        y=df_combined['Marihuana (kg)'],
-        name='Marihuana (kg)',
-        line=dict(color='green')
-    ))
+    # Crear un segundo eje Y para la tasa de homicidios
+    ax2 = ax1.twinx()
+    color = 'tab:red'
+    ax2.set_ylabel('Tasa de Homicidios (por 100,000 hab.)', color=color)
+    ax2.plot(df_combined['Año'], df_combined['Tasa de Homicidios'], color=color, label='Tasa de Homicidios')
+    ax2.tick_params(axis='y', labelcolor=color)
     
-    # Añadir la línea de Tasa de Homicidios (eje Y secundario)
-    fig.add_trace(go.Scatter(
-        x=df_combined['Año'], 
-        y=df_combined['Tasa de Homicidios'],
-        name='Tasa de Homicidios',
-        line=dict(color='red'),
-        yaxis='y2'
-    ))
+    # Añadir título y leyenda
+    plt.title(f'Comparación de Incautaciones y Tasa de Homicidios en {pais_seleccionado}')
+    fig.tight_layout()
     
-    # Configurar el layout del gráfico
-    fig.update_layout(
-        title=f'Comparación de Incautaciones y Tasa de Homicidios en {pais_seleccionado}',
-        xaxis=dict(title='Año'),
-        yaxis=dict(title='Incautaciones (kg)', titlefont=dict(color='blue')),
-        yaxis2=dict(title='Tasa de Homicidios (por 100,000 hab.)', titlefont=dict(color='red'), overlaying='y', side='right'),
-        legend=dict(x=0.1, y=1.1)
-    )
+    # Mostrar la leyenda
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax2.legend(lines + lines2, labels + labels2, loc='upper left')
     
     # Mostrar el gráfico en Streamlit
-    st.plotly_chart(fig)
+    st.pyplot(fig)
     
 # Función para agregar leyenda
 def add_legend(map_object):
