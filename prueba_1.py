@@ -22,7 +22,7 @@ Utilice los botones a continuación para navegar entre los mapas de calor.
 """)
 
 # Sidebar para navegación
-page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas", 'Mapa de Homicidios', "Línea de Tiempo Tráfico vs Homicidios"])
+page = st.radio("Seleccione una sección:", ["Información General", "Mapa de Drogas", "Mapa de Armas", 'Mapa de Homicidios', "Línea de Tiempo Tráfico vs Homicidios", "Gráfico de línea"])
 
 # Cargar datos de homicidios
 @st.cache_data
@@ -66,6 +66,59 @@ if page == "Información General":
 
 # Línea de Tiempo: Tráfico Ilícito vs Homicidios
 if page == "Línea de Tiempo Tráfico vs Homicidios":
+
+    # Limpiar datos
+    df.fillna(0, inplace=True)
+    df_homicidios.fillna(0, inplace=True)
+    
+    # Normalizar nombres de países (Perú vs Peru)
+    df['País'] = df['País'].replace({'Peru': 'Perú'})
+    df_homicidios['País'] = df_homicidios['País'].replace({'Peru': 'Perú'})
+    
+    # Convertir la columna 'Año' a tipo int
+    df['Año'] = df['Año'].astype(int)
+    df_homicidios['Año'] = df_homicidios['Año'].astype(int)
+    
+    # Obtener el rango de años disponibles
+    años_disponibles = sorted(df['Año'].unique())
+    
+    # Crear un slider para seleccionar el año
+    año_seleccionado = st.slider(
+        "Seleccione el año",
+        min_value=min(años_disponibles),
+        max_value=max(años_disponibles),
+        value=min(años_disponibles)
+    )
+    
+    # Filtrar datos por el año seleccionado
+    df_año = df[df['Año'] == año_seleccionado]
+    df_homicidios_año = df_homicidios[df_homicidios['Año'] == año_seleccionado]
+    
+    # Combinar los datos de incautaciones y homicidios para el año seleccionado
+    df_combined = pd.merge(df_año, df_homicidios_año, on=['País', 'Año'], how='outer')
+    
+    # Mostrar los datos en una tabla
+    st.write(f"Datos para el año {año_seleccionado}:")
+    st.dataframe(df_combined)
+    
+    # Crear un gráfico de barras para las incautaciones de drogas por país
+    st.write(f"Incautaciones de drogas por país en el año {año_seleccionado}:")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    df_combined.set_index('País')[['Cocaína (kg)', 'Marihuana (kg)']].plot(kind='bar', ax=ax)
+    ax.set_ylabel('Cantidad (kg)')
+    ax.set_title(f'Incautaciones de drogas por país en {año_seleccionado}')
+    st.pyplot(fig)
+    
+    # Crear un gráfico de barras para la tasa de homicidios por país
+    st.write(f"Tasa de homicidios por país en el año {año_seleccionado}:")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    df_combined.set_index('País')['Tasa de Homicidios'].plot(kind='bar', color='red', ax=ax)
+    ax.set_ylabel('Tasa de homicidios (por 100,000 hab.)')
+    ax.set_title(f'Tasa de homicidios por país en {año_seleccionado}')
+    st.pyplot(fig)
+
+# Gráfico de línea
+if page == "Gráfico de línea":
 
     # Limpiar datos
     df.fillna(0, inplace=True)
