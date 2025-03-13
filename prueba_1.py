@@ -68,39 +68,37 @@ if page == "Información General":
 # Línea de Tiempo: Tráfico Ilícito vs Homicidios
 if page == "Línea de Tiempo Tráfico vs Homicidios":
 
-    # Cargar los archivos CSV
-    file1_path = "homicidios_data.csv"
-    file2_path = "Datos_Normalizados_v1.csv"
+    # Limpiar datos
+    df.fillna(0, inplace=True)
+    df_homicidios.fillna(0, inplace=True)
     
-    df1 = pd.read_csv(file1_path)
-    df2 = pd.read_csv(file2_path)
+    # Convertir la columna 'Año' a tipo datetime
+    df['Año'] = pd.to_datetime(df['Año'], format='%Y')
+    df_homicidios['Año'] = pd.to_datetime(df_homicidios['Año'], format='%Y')
     
-    # Unificar el formato de año (por si acaso hay errores de tipo)
-    df1["Año"] = df1["Año"].astype(int)
-    df2["Año"] = df2["Año"].astype(int)
+    # Obtener la lista de países disponibles
+    paises_disponibles = df['País'].unique()
     
-    # Agrupar los homicidios por año y país
-    tasa_homicidios = df1.groupby(["País", "Año"])["Tasa de Homicidios"].mean().reset_index()
+    # Seleccionar país desde un menú desplegable
+    pais_seleccionado = st.selectbox("Seleccione un país", paises_disponibles)
     
-    # Agrupar la cantidad de drogas incautadas por año y país
-    columnas_drogas = ["Cocaína (kg)", "Marihuana (kg)", "Sustancias Químicas Sólidas (kg)", "Sustancias Químicas Líquidas (L)"]
-    drogas_incautadas = df2.groupby(["País", "Año"])[columnas_drogas].sum().reset_index()
+    # Filtrar datos por país seleccionado
+    df_pais = df[df['País'] == pais_seleccionado]
+    df_homicidios_pais = df_homicidios[df_homicidios['País'] == pais_seleccionado]
     
-    # Unir ambas bases de datos en una sola para facilitar la visualización
-    df_merged = pd.merge(tasa_homicidios, drogas_incautadas, on=["País", "Año"], how="outer")
+    # Agrupar los datos por año para el país seleccionado
+    df_pais_grouped = df_pais.groupby('Año').sum().reset_index()
+    df_homicidios_pais_grouped = df_homicidios_pais.groupby('Año').sum().reset_index()
     
-    # Aplicación en Streamlit
-    st.title("Línea de Tiempo de Homicidios y Drogas Incautadas")
+    # Combinar los datos de incautaciones y homicidios
+    df_combined = pd.merge(df_pais_grouped, df_homicidios_pais_grouped, on='Año', how='outer')
     
-    # Selección de país
-    paises = df_merged["País"].unique()
-    pais_seleccionado = st.selectbox("Selecciona un país", paises)
+    # Crear el gráfico de líneas
+    fig = px.line(df_combined, x='Año', y=['Cocaína (kg)', 'Marihuana (kg)', 'Tasa de Homicidios'],
+                  title=f'Comparación de Incautaciones y Tasa de Homicidios en {pais_seleccionado}',
+                  labels={'value': 'Cantidad', 'variable': 'Tipo de Incautación/Homicidios'})
     
-    df_filtrado = df_merged[df_merged["País"] == pais_seleccionado]
-    
-    # Crear gráfico interactivo
-    fig = px.line(df_filtrado, x="Año", y=["Tasa de Homicidios", "Cocaína (kg)", "Marihuana (kg)", "Sustancias Químicas Sólidas (kg)", "Sustancias Químicas Líquidas (L)"], markers=True, title=f"Evolución de Indicadores en {pais_seleccionado}")
-    
+    # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig)
     
 # Función para agregar leyenda
