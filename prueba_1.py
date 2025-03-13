@@ -74,10 +74,10 @@ if page == "Línea de Tiempo Tráfico vs Homicidios":
     # Normalizar nombres de países (Perú vs Peru)
     df['País'] = df['País'].replace({'Peru': 'Perú'})
     df_homicidios['País'] = df_homicidios['País'].replace({'Peru': 'Perú'})
-    
-    # Convertir la columna 'Año' a tipo datetime y extraer solo el año
-    df['Año'] = pd.to_datetime(df['Año'], format='%Y').dt.year
-    df_homicidios['Año'] = pd.to_datetime(df_homicidios['Año'], format='%Y').dt.year
+
+    # Convertir la columna 'Año' a tipo int
+    df['Año'] = df['Año'].astype(int)
+    df_homicidios['Año'] = df_homicidios['Año'].astype(int)
     
     # Obtener la lista de países disponibles
     paises_disponibles = df['País'].unique()
